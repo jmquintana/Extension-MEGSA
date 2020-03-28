@@ -1,45 +1,15 @@
 var myTab = document.querySelector("#dgOfertaVenta"); //Hacer referencia a la tabla contenedora de las ofertas
 
-// var ofertas = [{ "numeroOferta": null, "numeroOrden": null, "mercado": '', "versiones": [{ "hora": 0, "volumen": 0, "precio": 0 }] }];
 var ofertasLocal = [{ "numeroOferta": null, "numeroOrden": null, "mercado": '', "versiones": [{ "hora": 0, "volumen": 0, "precio": 0 }] }];
 
-// function leerTabla() {
 
-//     if (myTab != null) {
-//         for (var i = 2; i <= myTab.rows.length; i++) {
-//             var a = encontrarColumna();
-//             var b = a + 1
-//             var c = a + 2
-//             var d = a + 3
-//             var e = a + 6
-//             var n = parseInt(document.querySelector("#dgOfertaVenta > tbody > tr:nth-child(" + i + ") > td:nth-child(" + a + ")").textContent);
-//             ofertas[n - 1] = {
-//                 "numeroOferta": parseInt(document.querySelector("#dgOfertaVenta > tbody > tr:nth-child(" + i + ") > td:nth-child(" + a + ")").textContent),
-//                 "numeroOrden": i - 1,
-//                 "mercado": document.querySelector("#dgOfertaVenta > tbody > tr:nth-child(" + i + ") > td:nth-child(" + b + ")").textContent,
-//                 "versiones": [
-//                     {
-//                         "hora": dateToNumber(document.querySelector("#dgOfertaVenta > tbody > tr:nth-child(" + i + ") > td:nth-child(" + c + ")").textContent),
-//                         "volumen": parseInt(document.querySelector("#dgOfertaVenta > tbody > tr:nth-child(" + i + ") > td:nth-child(" + d + ")").textContent.split('.').join('')),
-//                         "precio": parseFloat(document.querySelector("#dgOfertaVenta > tbody > tr:nth-child(" + i + ") > td:nth-child(" + e + ")").textContent.split(',').join('.'))
-//                     }
-//                 ]
-//             }
-//         }
-//         // return ofertas
-//     } else {
-//         console.log("myTab es null")
-//     };
-// };
-
-//----------------Constructores de objetos--------------------------------------------------------
-function Oferta(numeroOferta, numeroOrden, mercado, versiones) {
+//----------------CONSTRUCTOR DE OFERTAS--------------------------------------------------------
+function Oferta(numeroOferta, mercado, versiones) {
     this.numeroOferta = numeroOferta;
-    this.numeroOrden = numeroOrden;
     this.mercado = mercado;
     this.versiones = versiones;
 }
-
+//----------------CONSTRUCTOR DE VERSIONES--------------------------------------------------------
 function Version(hora, volumen, porcentaje, precio, precioGba) {
     this.hora = hora;
     this.volumen = volumen;
@@ -48,20 +18,20 @@ function Version(hora, volumen, porcentaje, precio, precioGba) {
     this.precioGba = precioGba;
 }
 
+//----------------LECTURA DE LAS OFERTAS EN PANTALLA--------------------------------------------------------
 function leerTabla() {
     var ofertas = [];
     if (myTab != null) {
-        for (i = 0; i < myTab.rows.length - 1; i++) {
+        for (i = 1; i < myTab.rows.length; i++) {
             var oferta = new Oferta(
-                parseInt(myTab.firstElementChild.children[i + 1].children[2].innerText),
-                i + 1,
-                myTab.firstElementChild.children[i + 1].children[3].innerText,
+                parseInt(myTab.firstElementChild.children[i].children[buscarColumna("Nro.Oferta")].innerText),
+                myTab.firstElementChild.children[i].children[buscarColumna("Mercado")].innerText,
                 [new Version(
-                    dateToNumber(myTab.firstElementChild.children[i + 1].children[4].innerText),
-                    parseInt(myTab.firstElementChild.children[i + 1].children[5].innerText.split('.').join('')),
-                    parseFloat(myTab.firstElementChild.children[i + 1].children[7].innerText.split(',').join('.')),
-                    parseFloat(myTab.firstElementChild.children[i + 1].children[8].innerText.split(',').join('.')),
-                    parseFloat(myTab.firstElementChild.children[i + 1].children[9].innerText.split(',').join('.'))
+                    dateToNumber(myTab.firstElementChild.children[i].children[buscarColumna("Fecha y horario")].innerText),
+                    parseInt(myTab.firstElementChild.children[i].children[buscarColumna("Vol.Ofertado (m³)")].innerText.split('.').join('')),
+                    parseFloat(myTab.firstElementChild.children[i].children[buscarColumna("Precio (%)")].innerText.split(',').join('.')),
+                    parseFloat(myTab.firstElementChild.children[i].children[buscarColumna("Precio (USD/MMBTU)")].innerText.split(',').join('.')),
+                    parseFloat(myTab.firstElementChild.children[i].children[buscarColumna("Precio GBA (USD/MMBTU)")].innerText.split(',').join('.'))
                 )]
             )
             ofertas.push(oferta);
@@ -70,54 +40,56 @@ function leerTabla() {
     return ofertas;
 }
 var ofertas = leerTabla();
-console.log(ofertas);
 //------------------------------------------------------------------------------------------------
 
+//------------CODIGO EJECUTADO------------------------------------
+console.log(ofertas);
 // localStorage.clear();
 leerTabla();
 iniciarResumen();
 guardarOfertas(ofertas);
 leerLocal();
 
+
+//------------LEE LAS OFERTAS GUARDADAS EN EL LOCAL STORAGE------------------------------------
 function leerLocal() {
     ofertasLocal = JSON.parse(localStorage.getItem('ofertas'));
 };
 
-//console.log(ofertas)
-
+//------------EJECUTA LA ACTUALIZACIÓN DEL RESUMEN CADA UN TIEMPO DEFINIDO---------------------
 // var t = 60;
 // setInterval(() => {
-//     t = t - 1
-//     console.log(decirHora() + " (" + t + ")");
-//     actualizarResumen();
-// }, 1000);
-
-
-function dateToNumber(fechaHora) {
-    var x = fechaHora.split(" ")
-    var dma = x[0].split('/')
-    var hms = x[1].split(':')
-    fecha = new Date(dma[2], dma[1] - 1, dma[0], hms[0], hms[1], hms[2])
-    return fecha //dia 
-};
-
-function encontrarColumna() {
-    var encab = myTab.firstElementChild.firstElementChild;
-    var n = encab.childElementCount
-    for (var i = 1; i <= n; i++) {
-        if (encab.children[i].innerText == "Mercado") {
-            return col = i
-        }
+    //     t = t - 1
+    //     console.log(decirHora() + " (" + t + ")");
+    //     actualizarResumen();
+    // }, 1000);
+    
+//------------CONVIERTE FECHA/HORA DE TEXTO A FORMATO DATE-----------------------------------
+    function dateToNumber(fechaHora) {
+        var x = fechaHora.split(" ")
+        var dma = x[0].split('/')
+        var hms = x[1].split(':')
+        fecha = new Date(dma[2], dma[1] - 1, dma[0], hms[0], hms[1], hms[2])
+        return fecha //dia 
+    };
+    
+//-------------------DEVUELVE EL INDICE DE LA COLUMNA CON EL NOMBRE INGRESADO POR PARAMETRO---------------------------------------------------------------
+function buscarColumna(columna) {
+    var cabecera = myTab.firstElementChild.firstElementChild.children;
+    var encabezado = [];
+    for (var i = 0; i < cabecera.length; i++) {
+        encabezado.push(cabecera[i].innerText + cabecera[i].className);
     }
+    // console.log(encabezado);
+    return encabezado.findIndex((element) => element === columna);
 };
 
 //-------------------GUARDAR OFERTAS EN LOCAL STORAGE---------------------------------------------------------------
-
 function guardarOfertas(array) {
     localStorage.setItem('ofertas', JSON.stringify(array));
 };
-//-------------------RESALTAR OFERTA---------------------------------------------------------------
 
+//-------------------RESALTA OFERTA CON NUMERO n CON EL COLOR c (ARREGLAR)---------------------------------------------------------------
 function resaltarOferta(n, c) {
     //Color row background in HSL space (easier to manipulate fading)
     // var tablaValores = 'table.dataGrid > tbody > tr';
@@ -136,7 +108,7 @@ function resaltarOferta(n, c) {
     }
 };
 
-//-------------------OBSERVER---------------------------------------------------------------
+//-------------------OBSERVER: DETECTA CAMBIOS EN LA TABLA DE OFERTAS---------------------------------------------------------------
 var tablaOfertas = myTab.firstElementChild;
 
 var configObserver = {
@@ -168,7 +140,7 @@ var observer = new MutationObserver(mutations => {
 
 observer.observe(tablaOfertas, configObserver);
 
-//-----------------OBSERVADOR-----------------------------------------------------------------
+//-----------------OBSERVADOR: DETECTA CAMBIOS EN EL ELEMENTO "div.spinner-container"-----------------------------------------------------------------
 var procesando = document.querySelector("div.spinner-container");
 
 var configObservador = {
@@ -206,22 +178,17 @@ var observador = new MutationObserver(mutations2 => {
 
 observador.observe(procesando, configObservador);
 
-//---------------HORA ACTUAL-------------------------------------------------------------------
-
+//---------------DEVUELVE LA HORA ACTUAL-------------------------------------------------------------------
 function decirHora() {
-
     var fecha = new Date()
     var horas = fecha.getHours()
     var minutos = fecha.getMinutes()
     var segundos = fecha.getSeconds()
-
     var horaActual = numeral(horas).format('00') + ":" + numeral(minutos).format('00') + ":" + numeral(segundos).format('00');
-
     return horaActual;
-
 };
 
-//---------------PINTAR CAMBIOS-------------------------------------------------------------------
+//---------------PINTA LOS CAMBIOS INGRESADOS EN UN VECTOR DE NÚMERO DE OFERTA-------------------------------------------------------------------
 function pintarCambios(cambios) {
     leerTabla();
     ofertasLocal = JSON.parse(localStorage.getItem('ofertas'));
@@ -246,8 +213,8 @@ function pintarCambios(cambios) {
     actualizarOfertas();
     // actualizarResumen ();
 };
-//---------------------------ACTUALIZAR OFERTAS EN MEMORIA LOCAL-------------------------------------------------------
 
+//--------------ACTUALIZA OFERTAS EN MEMORIA LOCAL EN CASO DE HABER DETECTADO CAMBIOS-------------------------------------------------------
 function actualizarOfertas() {
     leerTabla();
     var ofertasLocal = JSON.parse(localStorage.getItem('ofertas'));
@@ -278,44 +245,23 @@ function actualizarOfertas() {
     guardarOfertas(ofertasLocal);
 };
 
-//-----------------VOLUMENES POR CUENCA-----------------------------------------------------------------
-
+//-----------------CALCULA EL TOTAL DE VOLUMEN POR CUENCA-----------------------------------------------------------------
 function volumenTotal(cuenca) {
-    leerTabla();
-    var volumen = 0;
-
-    if (cuenca === '*') {
-        for (var i = 0; i < ofertas.length; i++) {
-            if (typeof ofertas[i] != 'undefined' && ofertas[i].versiones[0].volumen != -1) {
-                volumen += ofertas[i].versiones[0].volumen;
-            };
-        };
-        return volumen
-
-    } else {
-
-        var filtro = ofertas.filter(function (elem) {
-            return (elem.mercado === cuenca);
-        });
-        // console.log(filtro);
-        for (var i = 0; i < filtro.length; i++) {
-            volumen += filtro[i].versiones[0].volumen;
-            // console.log(volumen);
-        };
-        return volumen;
-        // console.log(volumen);
-    };
+    var ofertasFiltradas = ofertas
+    if (cuenca !== "*") {
+        var ofertasFiltradas = ofertas.filter(item => { return item.mercado === cuenca })
+    }
+    return ofertasFiltradas.reduce((total, item) => { return total + item.versiones[0].volumen }, 0)
 };
 
-//-----------------PRECIOS POR CUENCA-----------------------------------------------------------------
-
+//-----------------DEVUELVE EL MENOR PRECIO DE CADA CUENCA-----------------------------------------------------------------
 function menorPrecio(cuenca) {
-    leerTabla();
+    // leerTabla();
     var precios = [];
     var precioMenor = 100000;
 
     if (cuenca === '*') {
-        for (var i = 0; i <= ofertas.length; i++) {
+        for (var i = 0; i < ofertas.length; i++) {
             if (typeof ofertas[i] != 'undefined' && ofertas[i].versiones[0].precio != -1) {
                 precios.push(ofertas[i].versiones[0].precio);
             };
@@ -332,8 +278,20 @@ function menorPrecio(cuenca) {
     };
     return precioMenor;
 };
-//-----------------INICIAR LA TABLA RESUMEN-----------------------------------------------------------------
 
+function ofertaMenorPrecio(cuenca) {
+
+    
+    if (cuenca === '*') {
+
+        
+    } else {
+
+        
+    };
+    return ofertaPrecioMenor;
+};
+//-----------------INICIAR LA TABLA RESUMEN-----------------------------------------------------------------
 function iniciarResumen() {
 
     var noaV = volumenTotal('NOROESTE');
@@ -341,7 +299,8 @@ function iniciarResumen() {
     var chuV = volumenTotal('CHUBUT');
     var sczV = volumenTotal('SANTA CRUZ');
     var tdfV = volumenTotal('TIERRA DEL FUEGO');
-    var totV = noaV + nqnV + chuV + sczV + tdfV
+    var totV = volumenTotal('*');
+    // var totV = noaV + nqnV + chuV + sczV + tdfV;
 
     var noaP = menorPrecio('NOROESTE');
     var nqnP = menorPrecio('NEUQUEN');
@@ -350,7 +309,11 @@ function iniciarResumen() {
     var tdfP = menorPrecio('TIERRA DEL FUEGO');
     var totP = menorPrecio('*');
 
-    // console.log(noaP);
+    var noaPP = ofertas[ofertas.indexOf(menorPrecio('NOROESTE'))+10].versiones[0].porcentaje;
+    var nqnPP = ofertas.indexOf(menorPrecio('NEUQUEN'));
+    var chuPP = ofertas.indexOf(menorPrecio('CHUBUT'));
+    var sczPP = ofertas.indexOf(menorPrecio('SANTA CRUZ'));
+    var tdfPP = ofertas.indexOf(menorPrecio('TIERRA DEL FUEGO'));
 
     var encabezado = document.querySelector("#tablaHeader2")
     encabezado.outerHTML +=
@@ -394,7 +357,7 @@ function iniciarResumen() {
     </div>
     <h2 class="logo">Precios</h2>
     <div>
-        <table class="res">
+        <table class="res precio">
             <thead>
                 <tr>
                     <th>Mercado</th>
@@ -404,22 +367,27 @@ function iniciarResumen() {
             <tbody>
                 <tr>
                     <td>NOA</td>
+                    <td id="noaPP">${noaPP.toLocaleString('de-ES', { minimumFractionDigits: 2 })}</td>
                     <td id="noaP">${noaP.toLocaleString('de-ES', { minimumFractionDigits: 4 })}</td>
                 </tr>
                 <tr>
                     <td>NQN</td>
+                    <td id="nqnPP">${nqnPP.toLocaleString('de-ES', { minimumFractionDigits: 2 })}</td>
                     <td id="nqnP">${nqnP.toLocaleString('de-ES', { minimumFractionDigits: 4 })}</td>
                 </tr>
                 <tr>
                     <td>CHU</td>
+                    <td id="chuPP">${chuPP.toLocaleString('de-ES', { minimumFractionDigits: 2 })}</td>
                     <td id="chuP">${chuP.toLocaleString('de-ES', { minimumFractionDigits: 4 })}</td>
                 </tr>
                 <tr>
                     <td>SCZ</td>
+                    <td id="sczPP">${sczPP.toLocaleString('de-ES', { minimumFractionDigits: 2 })}</td>
                     <td id="sczP">${sczP.toLocaleString('de-ES', { minimumFractionDigits: 4 })}</td>
                 </tr>
                 <tr>
                     <td>TDF</td>
+                    <td id="tdfPP">${tdfPP.toLocaleString('de-ES', { minimumFractionDigits: 2 })}</td>
                     <td id="tdfP">${tdfP.toLocaleString('de-ES', { minimumFractionDigits: 4 })}</td>
                 </tr>
                 <tr>
@@ -430,12 +398,12 @@ function iniciarResumen() {
         </table>
     </div>
     <div class="container-btn">
-        <a class="link-to-download-json btn" onclick="leerLocal()" style="display:none">JSON</a>
+        <a class="link-to-download-json btn" onclick="leerLocal()">JSON</a>
         <a class="link-to-download-csv btn" onclick="leerLocal()">CSV</a>
     </div>
 </div>
 `
-
+//style="display:none"
 };
 
 //-----------------ACTUALIZAR LA TABLA RESUMEN-----------------------------------------------------------------
