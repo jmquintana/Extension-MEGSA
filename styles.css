@@ -44,11 +44,22 @@ table.res {
                 text-align:right;
             }
 
+        .res.precio tr td:nth-child(2){
+            float: left;
+            width: auto;
+        }
+
+            .res.precio tr td:nth-child(3){
+        float: right;
+        /* width: 60px; */
+    }
+
     .res tbody td {
         /* border:solid 1px white; */
         font-size: 1.0rem;
         padding:5px;
         background-color: #7a8ab8;
+        /* border: solid 1px white; */
     }
 
     .res tbody th {
