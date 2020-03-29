@@ -247,50 +247,56 @@ function actualizarOfertas() {
 
 //-----------------CALCULA EL TOTAL DE VOLUMEN POR CUENCA-----------------------------------------------------------------
 function volumenTotal(cuenca) {
-    var ofertasFiltradas = ofertas
+    var ofertasFiltradas = leerTabla();
     if (cuenca !== "*") {
-        var ofertasFiltradas = ofertas.filter(item => { return item.mercado === cuenca })
+        var ofertasFiltradas = ofertas.filter(item => item.mercado === cuenca)
     }
-    return ofertasFiltradas.reduce((total, item) => { return total + item.versiones[0].volumen }, 0)
+    return ofertasFiltradas.reduce((total, item) => total + item.versiones[0].volumen, 0)
+};
+
+//-----------------CALCULA PRECIO MINIMO POR CUENCA-----------------------------------------------------------------
+function menorPrecio(cuenca) {
+    var ofertasFiltradas = leerTabla();
+    if (cuenca !== "*") {
+        var ofertasFiltradas = ofertas.filter(item => item.mercado === cuenca)
+    }
+    var precios = ofertasFiltradas.map(item => { return item.versiones[0].precio})
+    return Math.min(...precios)
+};
+
+//-----------------CALCULA PORCENTAJE CORRESPONDIENTE AL PRECIO MINIMO POR CUENCA-----------------------------------------------------------------
+function menorPorcentajePrecio(cuenca) {
+    // var ofertas = leerTabla();
+    var precios = ofertas.map(item => { return item.versiones[0].precio})
+    var indice = precios.indexOf(menorPrecio(cuenca));
+    return ofertas[indice].versiones[0].porcentaje;
 };
 
 //-----------------DEVUELVE EL MENOR PRECIO DE CADA CUENCA-----------------------------------------------------------------
-function menorPrecio(cuenca) {
-    // leerTabla();
-    var precios = [];
-    var precioMenor = 100000;
+// function menorPrecio(cuenca) {
+//     // leerTabla();
+//     var precios = [];
+//     var precioMenor = 100000;
 
-    if (cuenca === '*') {
-        for (var i = 0; i < ofertas.length; i++) {
-            if (typeof ofertas[i] != 'undefined' && ofertas[i].versiones[0].precio != -1) {
-                precios.push(ofertas[i].versiones[0].precio);
-            };
-            var precioMenor = Math.min(...precios);
-        };
-    } else {
-        var filtro = ofertas.filter(function (elem) {
-            return (elem.mercado === cuenca && typeof elem.versiones[0].precio != -1);
-        });
-        for (i = 0; i < filtro.length; i++) {
-            precios.push(filtro[i].versiones[0].precio);
-        };
-        var precioMenor = Math.min(...precios);
-    };
-    return precioMenor;
-};
+//     if (cuenca === '*') {
+//         for (var i = 0; i < ofertas.length; i++) {
+//             if (typeof ofertas[i] != 'undefined' && ofertas[i].versiones[0].precio != -1) {
+//                 precios.push(ofertas[i].versiones[0].precio);
+//             };
+//             var precioMenor = Math.min(...precios);
+//         };
+//     } else {
+//         var filtro = ofertas.filter(function (elem) {
+//             return (elem.mercado === cuenca && typeof elem.versiones[0].precio != -1);
+//         });
+//         for (i = 0; i < filtro.length; i++) {
+//             precios.push(filtro[i].versiones[0].precio);
+//         };
+//         var precioMenor = Math.min(...precios);
+//     };
+//     return precioMenor;
+// };
 
-function ofertaMenorPrecio(cuenca) {
-
-    
-    if (cuenca === '*') {
-
-        
-    } else {
-
-        
-    };
-    return ofertaPrecioMenor;
-};
 //-----------------INICIAR LA TABLA RESUMEN-----------------------------------------------------------------
 function iniciarResumen() {
 
@@ -309,13 +315,13 @@ function iniciarResumen() {
     var tdfP = menorPrecio('TIERRA DEL FUEGO');
     var totP = menorPrecio('*');
 
-    var noaPP = ofertas[ofertas.indexOf(menorPrecio('NOROESTE'))+10].versiones[0].porcentaje;
-    var nqnPP = ofertas.indexOf(menorPrecio('NEUQUEN'));
-    var chuPP = ofertas.indexOf(menorPrecio('CHUBUT'));
-    var sczPP = ofertas.indexOf(menorPrecio('SANTA CRUZ'));
-    var tdfPP = ofertas.indexOf(menorPrecio('TIERRA DEL FUEGO'));
+    var noaPP = menorPorcentajePrecio('NOROESTE');
+    var nqnPP = menorPorcentajePrecio('NEUQUEN');
+    var chuPP = menorPorcentajePrecio('CHUBUT');
+    var sczPP = menorPorcentajePrecio('SANTA CRUZ');
+    var tdfPP = menorPorcentajePrecio('TIERRA DEL FUEGO');
 
-    var encabezado = document.querySelector("#tablaHeader2")
+    var encabezado = document.querySelector("#megNavegador_uwmMenu")
     encabezado.outerHTML +=
         `<div id="resumenVolumen" class="logo-nav-container">
     <h2 class="logo">Volúmenes</h2>
@@ -355,13 +361,13 @@ function iniciarResumen() {
             </tbody>
         </table>
     </div>
-    <h2 class="logo">Precios</h2>
+    <h2 class="logo precios">Precios</h2>
     <div>
         <table class="res precio">
             <thead>
                 <tr>
                     <th>Mercado</th>
-                    <th>Precio (usd/MMBtu)</th>
+                    <th colspan="2">Precio (usd/MMBtu)</th>
                 </tr>
             </thead>
             <tbody>
@@ -392,7 +398,7 @@ function iniciarResumen() {
                 </tr>
                 <tr>
                     <th>TOTAL</th>
-                    <th id="totP">${totP.toLocaleString('de-ES', { minimumFractionDigits: 4 })}</th>
+                    <th id="totP" colspan="2">${totP.toLocaleString('de-ES', { minimumFractionDigits: 4 })}</th>
                 </tr>
             </tbody>
         </table>

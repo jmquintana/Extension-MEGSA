@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<link rel="stylesheet" type="text/css" href="styles.css">
+<script src="content.js"></script>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="resumenVolumen" class="logo-nav-container">
+        <h2 class="logo">Volúmenes</h2>
+        <div>
+            <table class="res">
+                <thead>
+                    <tr>
+                        <th>Mercado</th>
+                        <th>Volumen (m&sup3)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>NOA</td>
+                        <td id="noaV">3.500.000</td>
+                    </tr>
+                    <tr>
+                        <td>NQN</td>
+                        <td id="nqnV">60.180.000</td>
+                    </tr>
+                    <tr>
+                        <td>CHU</td>
+                        <td id="chuV">2.500.000</td>
+                    </tr>
+                    <tr>
+                        <td>SCZ</td>
+                        <td id="sczV">2.150.000</td>
+                    </tr>
+                    <tr>
+                        <td>TDF</td>
+                        <td id="tdfV">2.150.000</td>
+                    </tr>
+                    <tr>
+                        <th>TOTAL</th>
+                        <th id="totV">19.900.000</th>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <h2 class="logo precios">Precios</h2>
+        <div>
+            <table class="res precio">
+                <thead>
+                    <tr>
+                        <th>Mercado</th>
+                        <!-- <th></th> -->
+                        <th colspan="2">Precio (usd/MMBtu)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>NOA</td>
+                        <td id="noaPP">70,00</td>
+                        <td id="noaP">1,7220</td>
+                    </tr>
+                    <tr>
+                        <td>NQN</td>
+                        <td id="nqnPP">43,50</td>
+                        <td id="nqnP">1,1615</td>
+                    </tr>
+                    <tr>
+                        <td>CHU</td>
+                        <td id="chuPP">62,75</td>
+                        <td id="chuP">1,6001</td>
+                    </tr>
+                    <tr>
+                        <td>SCZ</td>
+                        <td id="sczPP">55,00</td>
+                        <td id="sczP">1,2980</td>
+                    </tr>
+                    <tr>
+                        <td>TDF</td>
+                        <td id="tdfPP">51,08</td>
+                        <td id="tdfP">1,1799</td>
+                    </tr>
+                    <tr>
+                        <th>TOTAL</th>
+                        <!-- <th></th> -->
+                        <th id="totP" colspan="2">1,1615</th>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="container-btn">
+            <a class="link-to-download-json btn" onclick="leerLocal()">JSON</a>
+            <a class="link-to-download-csv btn" onclick="leerLocal()">CSV</a>
+        </div>
+    </div>
+</body>
+
+</html>
