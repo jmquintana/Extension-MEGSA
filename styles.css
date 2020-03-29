@@ -19,7 +19,6 @@
     text-align: center;
     width: 168px;
     color: white;
-    /* margin-left:2rem; */
     margin-bottom: 0.3rem;
 }
 
@@ -37,42 +36,16 @@ table.res {
 .res thead tr th {
     padding: 5px 5px;
     background-color: #43568f;
-    /* font-size: 0.9em; */
 }
-
-/* .precio thead tr th:nth-child(1) {
-    text-align: left;
-/* } */
 
 .res thead tr th:nth-child(2) {
     text-align: right;
 }
 
-/* .precio tbody tr td:nth-child(2) { */
-    /* float: left; */
-    /* width: 60px; */
-/* } */
-
-/* .precio tbody tr td:nth-child(3) { */
-    /* float: left; */
-    /* width: 60px; */
-/* } */
-
 .res tbody td {
-    /* border:solid 1px white; */
-    /* font-size: 0.9em; */
     padding: 5px;
     background-color: #7a8ab8;
-    /* border: solid 1px white; */
 }
-
-/* .res tbody.precios td:nth-child(2) { */
-/* border:solid 1px white; */
-/* font-size: 0.8em; */
-/* padding:5px; */
-/* background-color: #7a8ab8; */
-/* border: solid 1px white; */
-/* } */
 
 .res tbody th {
     /* border:solid 1px white; */

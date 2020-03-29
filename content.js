@@ -2,7 +2,6 @@ var myTab = document.querySelector("#dgOfertaVenta"); //Hacer referencia a la ta
 
 var ofertasLocal = [{ "numeroOferta": null, "numeroOrden": null, "mercado": '', "versiones": [{ "hora": 0, "volumen": 0, "precio": 0 }] }];
 
-
 //----------------CONSTRUCTOR DE OFERTAS--------------------------------------------------------
 function Oferta(numeroOferta, mercado, versiones) {
     this.numeroOferta = numeroOferta;
@@ -271,31 +270,6 @@ function menorPorcentajePrecio(cuenca) {
     var indice = precios.indexOf(menorPrecio(cuenca));
     return ofertas[indice].versiones[0].porcentaje;
 };
-
-//-----------------DEVUELVE EL MENOR PRECIO DE CADA CUENCA-----------------------------------------------------------------
-// function menorPrecio(cuenca) {
-//     // leerTabla();
-//     var precios = [];
-//     var precioMenor = 100000;
-
-//     if (cuenca === '*') {
-//         for (var i = 0; i < ofertas.length; i++) {
-//             if (typeof ofertas[i] != 'undefined' && ofertas[i].versiones[0].precio != -1) {
-//                 precios.push(ofertas[i].versiones[0].precio);
-//             };
-//             var precioMenor = Math.min(...precios);
-//         };
-//     } else {
-//         var filtro = ofertas.filter(function (elem) {
-//             return (elem.mercado === cuenca && typeof elem.versiones[0].precio != -1);
-//         });
-//         for (i = 0; i < filtro.length; i++) {
-//             precios.push(filtro[i].versiones[0].precio);
-//         };
-//         var precioMenor = Math.min(...precios);
-//     };
-//     return precioMenor;
-// };
 
 //-----------------INICIAR LA TABLA RESUMEN-----------------------------------------------------------------
 function iniciarResumen() {
