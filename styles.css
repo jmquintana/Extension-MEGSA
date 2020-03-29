@@ -2,6 +2,7 @@
     /* display: flex; */
     /* justify-content: space-between; */
     /* font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; */
+    /* font-family: 'Roboto'; */
     align-items: center;
     /* flex-wrap: wrap; */
     position: fixed;
@@ -12,7 +13,7 @@
 }
 
 .logo {
-    /* font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; */
+    font-family: 'Roboto';
     /* font-weight: bold; */
     font-size: 0.9em;
     text-decoration: none;
@@ -20,6 +21,26 @@
     width: 168px;
     color: white;
     margin-bottom: 0.3rem;
+}
+
+.menu-icon {
+    color: yellowgreen;
+    font-size: 12px;
+    /* font-weight: bold; */
+    display:block;
+    cursor:pointer;
+    box-sizing: border-box;
+    text-align: center;
+    width: 168px;
+    margin-top: 10px;
+}
+
+.show div{
+    display:block;
+}
+
+.noshow div{
+    display:none;
 }
 
 table.res {

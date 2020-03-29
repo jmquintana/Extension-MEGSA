@@ -38,16 +38,16 @@ function leerTabla() {
     };
     return ofertas;
 }
-var ofertas = leerTabla();
 //------------------------------------------------------------------------------------------------
 
 //------------CODIGO EJECUTADO------------------------------------
+var ofertas = leerTabla();
 console.log(ofertas);
 // localStorage.clear();
-leerTabla();
+// leerTabla();
 iniciarResumen();
 guardarOfertas(ofertas);
-leerLocal();
+// leerLocal();
 
 
 //------------LEE LAS OFERTAS GUARDADAS EN EL LOCAL STORAGE------------------------------------
@@ -58,20 +58,20 @@ function leerLocal() {
 //------------EJECUTA LA ACTUALIZACIÓN DEL RESUMEN CADA UN TIEMPO DEFINIDO---------------------
 // var t = 60;
 // setInterval(() => {
-    //     t = t - 1
-    //     console.log(decirHora() + " (" + t + ")");
-    //     actualizarResumen();
-    // }, 1000);
-    
+//     t = t - 1
+//     console.log(decirHora() + " (" + t + ")");
+//     actualizarResumen();
+// }, 1000);
+
 //------------CONVIERTE FECHA/HORA DE TEXTO A FORMATO DATE-----------------------------------
-    function dateToNumber(fechaHora) {
-        var x = fechaHora.split(" ")
-        var dma = x[0].split('/')
-        var hms = x[1].split(':')
-        fecha = new Date(dma[2], dma[1] - 1, dma[0], hms[0], hms[1], hms[2])
-        return fecha //dia 
-    };
-    
+function dateToNumber(fechaHora) {
+    var x = fechaHora.split(" ")
+    var dma = x[0].split('/')
+    var hms = x[1].split(':')
+    fecha = new Date(dma[2], dma[1] - 1, dma[0], hms[0], hms[1], hms[2])
+    return fecha //dia 
+};
+
 //-------------------DEVUELVE EL INDICE DE LA COLUMNA CON EL NOMBRE INGRESADO POR PARAMETRO---------------------------------------------------------------
 function buscarColumna(columna) {
     var cabecera = myTab.firstElementChild.firstElementChild.children;
@@ -259,16 +259,32 @@ function menorPrecio(cuenca) {
     if (cuenca !== "*") {
         var ofertasFiltradas = ofertas.filter(item => item.mercado === cuenca)
     }
-    var precios = ofertasFiltradas.map(item => { return item.versiones[0].precio})
+    var precios = ofertasFiltradas.map(item => { return item.versiones[0].precio })
     return Math.min(...precios)
 };
 
 //-----------------CALCULA PORCENTAJE CORRESPONDIENTE AL PRECIO MINIMO POR CUENCA-----------------------------------------------------------------
 function menorPorcentajePrecio(cuenca) {
     // var ofertas = leerTabla();
-    var precios = ofertas.map(item => { return item.versiones[0].precio})
+    var precios = ofertas.map(item => { return item.versiones[0].precio })
     var indice = precios.indexOf(menorPrecio(cuenca));
     return ofertas[indice].versiones[0].porcentaje;
+};
+
+    
+function ocultarMenu() {
+    var menuBtn = document.querySelector('.menu-icon'),
+        menu = document.querySelector("div#resumenVolumen");
+
+    if (menu.className === 'show') {
+        console.log('clic1');
+        menu.className = 'noshow';
+        menuBtn.innerText = 'Ver resumen';
+    } else {
+        console.log('clic2');
+        menu.className = 'show';
+        menuBtn.innerText = 'Ocultar';
+    };
 };
 
 //-----------------INICIAR LA TABLA RESUMEN-----------------------------------------------------------------
@@ -297,7 +313,10 @@ function iniciarResumen() {
 
     var encabezado = document.querySelector("#megNavegador_uwmMenu")
     encabezado.outerHTML +=
-        `<div id="resumenVolumen" class="logo-nav-container">
+        `
+    <span class="menu-icon" onclick=ocultarMenu()>Ocultar</span>
+    <div class="logo-nav-container">
+    <div id="resumenVolumen" class="show">
     <h2 class="logo">Volúmenes</h2>
     <div>
         <table class="res">
@@ -378,12 +397,13 @@ function iniciarResumen() {
         </table>
     </div>
     <div class="container-btn">
-        <a class="link-to-download-json btn" onclick="leerLocal()">JSON</a>
-        <a class="link-to-download-csv btn" onclick="leerLocal()">CSV</a>
+        <a class="link-to-download-json btn" onclick=leerLocal()>JSON</a>
+        <a class="link-to-download-csv btn" onclick=leerLocal()>CSV</a>
     </div>
 </div>
+</div>
 `
-//style="display:none"
+    //style="display:none"
 };
 
 //-----------------ACTUALIZAR LA TABLA RESUMEN-----------------------------------------------------------------
@@ -449,10 +469,10 @@ jsonLink.setAttribute('download', jsonName);
 
 var csvLink = document.querySelector('.link-to-download-csv'),
     csvBlob = new Blob([csv], { type: "text/csv" }),
-    scvName = 'ofertas.csv',
+    csvName = 'ofertas.csv',
     csvUrl = window.URL.createObjectURL(csvBlob);
 csvLink.setAttribute('href', csvUrl);
-csvLink.setAttribute('download', scvName);
+csvLink.setAttribute('download', csvName);
 
 //-------BAJAR TABLA A XLS--------------------------------------------------------------------------
 
