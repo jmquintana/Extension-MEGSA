@@ -13,35 +13,45 @@
 }
 
 .logo {
-    font-family: 'Roboto';
+    /* font-family: 'Roboto'; */
     /* font-weight: bold; */
     font-size: 0.9em;
     text-decoration: none;
     text-align: center;
     width: 168px;
     color: white;
-    margin-bottom: 0.3rem;
+    margin: 0px;
+    height: 23px;
 }
 
 .menu-icon {
-    color: yellowgreen;
+    color: rgb(133,194,167);
     font-size: 12px;
+    text-align: right;
     /* font-weight: bold; */
     display:block;
     cursor:pointer;
     box-sizing: border-box;
-    text-align: center;
-    width: 168px;
-    margin-top: 10px;
+    /* text-align: center; */
+    font-variant: small-caps;
+    width: 113px;
+    margin: 1em;
+    user-select: none;
 }
 
-.show div{
+div#resumenVolumen {
+    animation-duration: 300ms;
+    /* animation-delay: 2s; */
+    /* animation-iteration-count: infinite; */
+  }
+
+/* .show {
     display:block;
 }
 
-.noshow div{
+.noshow {
     display:none;
-}
+} */
 
 table.res {
     color: white;
@@ -100,17 +110,21 @@ table.res {
 .btn {
     box-sizing: border-box;
     margin: 5% 0px 5% 5%;
-    width: 42.5%;
+    width: 90%;
     float: left;
     background-color: rgb(133, 194, 167);
     border-radius: 3px;
     color: white;
     /* display: block; */
     text-decoration: none;
-    padding: 5px;
+    padding: 10px;
     text-align: center;
-    font-weight: bold;
+    /* font-weight: bold; */
     box-shadow: 1px 1px 3px #1f457a;
+    transition: all 0.2s linear;
+    font-size: 0.8EM;
+    font-variant: small-caps;
+    letter-spacing: 2px;
 }
 
 .btn:hover {

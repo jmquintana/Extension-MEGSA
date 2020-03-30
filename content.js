@@ -47,8 +47,12 @@ console.log(ofertas);
 // leerTabla();
 iniciarResumen();
 guardarOfertas(ofertas);
+
+    var mostrarResumen = document.querySelector('.menu-icon');
+    // mostrarResumen.setAttribute('onclick', ocultarMenu);
 // leerLocal();
 
+mostrarResumen.addEventListener("click", ocultarMenu, false); 
 
 //------------LEE LAS OFERTAS GUARDADAS EN EL LOCAL STORAGE------------------------------------
 function leerLocal() {
@@ -56,12 +60,12 @@ function leerLocal() {
 };
 
 //------------EJECUTA LA ACTUALIZACIÓN DEL RESUMEN CADA UN TIEMPO DEFINIDO---------------------
-// var t = 60;
-// setInterval(() => {
-//     t = t - 1
-//     console.log(decirHora() + " (" + t + ")");
-//     actualizarResumen();
-// }, 1000);
+var t = 60;
+setInterval(() => {
+    if (t > 0) { t = t - 1 } else { t = t + 59 };
+    console.log(decirHora() + " (" + t + ")");
+    actualizarResumen();
+}, 1000);
 
 //------------CONVIERTE FECHA/HORA DE TEXTO A FORMATO DATE-----------------------------------
 function dateToNumber(fechaHora) {
@@ -246,7 +250,8 @@ function actualizarOfertas() {
 
 //-----------------CALCULA EL TOTAL DE VOLUMEN POR CUENCA-----------------------------------------------------------------
 function volumenTotal(cuenca) {
-    var ofertasFiltradas = leerTabla();
+    var ofertas = leerTabla();
+    var ofertasFiltradas = ofertas;
     if (cuenca !== "*") {
         var ofertasFiltradas = ofertas.filter(item => item.mercado === cuenca)
     }
@@ -255,7 +260,8 @@ function volumenTotal(cuenca) {
 
 //-----------------CALCULA PRECIO MINIMO POR CUENCA-----------------------------------------------------------------
 function menorPrecio(cuenca) {
-    var ofertasFiltradas = leerTabla();
+    var ofertas = leerTabla();
+    var ofertasFiltradas = ofertas;
     if (cuenca !== "*") {
         var ofertasFiltradas = ofertas.filter(item => item.mercado === cuenca)
     }
@@ -265,26 +271,34 @@ function menorPrecio(cuenca) {
 
 //-----------------CALCULA PORCENTAJE CORRESPONDIENTE AL PRECIO MINIMO POR CUENCA-----------------------------------------------------------------
 function menorPorcentajePrecio(cuenca) {
-    // var ofertas = leerTabla();
-    var precios = ofertas.map(item => { return item.versiones[0].precio })
+    var ofertas = leerTabla();
+    var ofertasCuenca = ofertas.filter(item => item.mercado === cuenca)
+    var precios = ofertasCuenca.map(item => { return item.versiones[0].precio })
     var indice = precios.indexOf(menorPrecio(cuenca));
-    return ofertas[indice].versiones[0].porcentaje;
+    return ofertasCuenca[indice].versiones[0].porcentaje;
 };
 
-    
+//-----------------OCULTA/MUESTRA EL MENU RESUMEN-----------------------------------------------------------------
 function ocultarMenu() {
     var menuBtn = document.querySelector('.menu-icon'),
         menu = document.querySelector("div#resumenVolumen");
+        // menu.classList.add('animated', 'bounceOutLeft');
 
-    if (menu.className === 'show') {
+    if (menu.classList.contains('show')) {
         console.log('clic1');
-        menu.className = 'noshow';
-        menuBtn.innerText = 'Ver resumen';
+        menu.classList.replace('show', 'noshow');
+        menu.classList.add('animated', 'fadeOutLeft', 'faster');
+        menuBtn.innerText = 'ver resumen';
     } else {
         console.log('clic2');
-        menu.className = 'show';
-        menuBtn.innerText = 'Ocultar';
+        menu.classList.replace('noshow', 'show');
+        menu.classList.replace('fadeOutLeft', 'fadeInLeft');
+        menuBtn.innerText = 'ocultar resumen';
     };
+};
+
+function hasClass(element, className) {
+    return (' ' + element.className + ' ').indexOf(' ' + className+ ' ') > -1;
 };
 
 //-----------------INICIAR LA TABLA RESUMEN-----------------------------------------------------------------
@@ -311,19 +325,19 @@ function iniciarResumen() {
     var sczPP = menorPorcentajePrecio('SANTA CRUZ');
     var tdfPP = menorPorcentajePrecio('TIERRA DEL FUEGO');
 
+    // <h2 class="logo">Volúmenes</h2>
     var encabezado = document.querySelector("#megNavegador_uwmMenu")
     encabezado.outerHTML +=
-        `
-    <span class="menu-icon" onclick=ocultarMenu()>Ocultar</span>
+    `
+    <span class="menu-icon">ocultar resumen</span>
     <div class="logo-nav-container">
     <div id="resumenVolumen" class="show">
-    <h2 class="logo">Volúmenes</h2>
     <div>
         <table class="res">
             <thead>
                 <tr>
                     <th>Mercado</th>
-                    <th>Volumen (m&sup3)</th>
+                    <th>Volumen Total</th>
                 </tr>
             </thead>
             <tbody>
@@ -354,39 +368,39 @@ function iniciarResumen() {
             </tbody>
         </table>
     </div>
-    <h2 class="logo precios">Precios</h2>
+    <h2 class="logo precios"></h2>
     <div>
         <table class="res precio">
             <thead>
                 <tr>
                     <th>Mercado</th>
-                    <th colspan="2">Precio (usd/MMBtu)</th>
+                    <th colspan="2">Precio Mínimo</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
                     <td>NOA</td>
-                    <td id="noaPP">${noaPP.toLocaleString('de-ES', { minimumFractionDigits: 2 })}</td>
+                    <td id="noaPP">${noaPP.toLocaleString('de-ES', { minimumFractionDigits: 2 })} %</td>
                     <td id="noaP">${noaP.toLocaleString('de-ES', { minimumFractionDigits: 4 })}</td>
                 </tr>
                 <tr>
                     <td>NQN</td>
-                    <td id="nqnPP">${nqnPP.toLocaleString('de-ES', { minimumFractionDigits: 2 })}</td>
+                    <td id="nqnPP">${nqnPP.toLocaleString('de-ES', { minimumFractionDigits: 2 })} %</td>
                     <td id="nqnP">${nqnP.toLocaleString('de-ES', { minimumFractionDigits: 4 })}</td>
                 </tr>
                 <tr>
                     <td>CHU</td>
-                    <td id="chuPP">${chuPP.toLocaleString('de-ES', { minimumFractionDigits: 2 })}</td>
+                    <td id="chuPP">${chuPP.toLocaleString('de-ES', { minimumFractionDigits: 2 })} %</td>
                     <td id="chuP">${chuP.toLocaleString('de-ES', { minimumFractionDigits: 4 })}</td>
                 </tr>
                 <tr>
                     <td>SCZ</td>
-                    <td id="sczPP">${sczPP.toLocaleString('de-ES', { minimumFractionDigits: 2 })}</td>
+                    <td id="sczPP">${sczPP.toLocaleString('de-ES', { minimumFractionDigits: 2 })} %</td>
                     <td id="sczP">${sczP.toLocaleString('de-ES', { minimumFractionDigits: 4 })}</td>
                 </tr>
                 <tr>
                     <td>TDF</td>
-                    <td id="tdfPP">${tdfPP.toLocaleString('de-ES', { minimumFractionDigits: 2 })}</td>
+                    <td id="tdfPP">${tdfPP.toLocaleString('de-ES', { minimumFractionDigits: 2 })} %</td>
                     <td id="tdfP">${tdfP.toLocaleString('de-ES', { minimumFractionDigits: 4 })}</td>
                 </tr>
                 <tr>
@@ -397,8 +411,8 @@ function iniciarResumen() {
         </table>
     </div>
     <div class="container-btn">
-        <a class="link-to-download-json btn" onclick=leerLocal()>JSON</a>
-        <a class="link-to-download-csv btn" onclick=leerLocal()>CSV</a>
+        <a class="link-to-download-json btn" onclick=leerLocal() style="display:none">JSON</a>
+        <a class="link-to-download-csv btn" onclick=leerLocal()>DESCARGAR</a>
     </div>
 </div>
 </div>
@@ -437,6 +451,19 @@ function actualizarResumen() {
     pScz.textContent = menorPrecio('SANTA CRUZ').toLocaleString('de-ES', { minimumFractionDigits: 4 })
     pTdf.textContent = menorPrecio('TIERRA DEL FUEGO').toLocaleString('de-ES', { minimumFractionDigits: 4 })
     pTot.textContent = menorPrecio('*').toLocaleString('de-ES', { minimumFractionDigits: 4 })
+
+    //PORCENTAJES
+    var ppNoa = document.getElementById('noaPP')
+    var ppNqn = document.getElementById('nqnPP')
+    var ppChu = document.getElementById('chuPP')
+    var ppScz = document.getElementById('sczPP')
+    var ppTdf = document.getElementById('tdfPP')
+
+    ppNoa.textContent = menorPorcentajePrecio('NOROESTE').toLocaleString('de-ES', { minimumFractionDigits: 2 }) + ' %'
+    ppNqn.textContent = menorPorcentajePrecio('NEUQUEN').toLocaleString('de-ES', { minimumFractionDigits: 2 }) + ' %'
+    ppChu.textContent = menorPorcentajePrecio('CHUBUT').toLocaleString('de-ES', { minimumFractionDigits: 2 }) + ' %'
+    ppScz.textContent = menorPorcentajePrecio('SANTA CRUZ').toLocaleString('de-ES', { minimumFractionDigits: 2 }) + ' %'
+    ppTdf.textContent = menorPorcentajePrecio('TIERRA DEL FUEGO').toLocaleString('de-ES', { minimumFractionDigits: 2 }) + ' %'
 };
 //-------DOWNLOAD LOCAL STORAGE--------------------------------------------------------------------------
 
