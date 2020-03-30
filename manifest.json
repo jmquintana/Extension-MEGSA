@@ -1,10 +1,13 @@
 {
     "manifest_version":2,
-    "name": "Subasta MEGSA pro",
-    "version": "2.0.0",
-	"description": "Resalta los cambios en las ofertas de las subastas de MEGSA.",
+    "name": "Subasta MEGSA",
+    "version": "2.5.0",
+	"description": "Agrega un tablero resumen con datos útiles de las Subastas de CAMMESA en MEGSA.",
     "icons": {
-        "64": "64.png"
+        "128": "icons/128.png",
+        "48": "icons/48.png",
+        "32": "icons/32.png",
+        "16": "icons/16.png"
     },
     "background": {
         "scripts": ["background.js"],
