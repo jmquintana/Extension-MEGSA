@@ -25,12 +25,12 @@
 }
 
 .menu-icon {
-    color: rgb(133,194,167);
+    color: rgb(133, 194, 167);
     font-size: 12px;
     text-align: right;
     /* font-weight: bold; */
-    display:block;
-    cursor:pointer;
+    display: block;
+    cursor: pointer;
     box-sizing: border-box;
     /* text-align: center; */
     font-variant: small-caps;
@@ -43,7 +43,7 @@ div#resumenVolumen {
     animation-duration: 300ms;
     /* animation-delay: 2s; */
     /* animation-iteration-count: infinite; */
-  }
+}
 
 /* .show {
     display:block;
@@ -100,6 +100,7 @@ table.res {
 }
 
 .container-btn {
+    display: flex;
     box-sizing: border-box;
     width: 100%;
     /* margin: 5px; */
@@ -108,10 +109,12 @@ table.res {
 }
 
 .btn {
+    display: inline-block;
     box-sizing: border-box;
-    margin: 5% 0px 5% 5%;
-    width: 90%;
-    float: left;
+    margin: 5% 5% 5% 5%;
+    width: 100%;
+    /* width: 90%; */
+    /* float: left; */
     background-color: rgb(133, 194, 167);
     border-radius: 3px;
     color: white;
@@ -119,14 +122,20 @@ table.res {
     text-decoration: none;
     padding: 10px;
     text-align: center;
-    /* font-weight: bold; */
+    font-weight: bold;
     box-shadow: 1px 1px 3px #1f457a;
     transition: all 0.2s linear;
     font-size: 0.8EM;
     font-variant: small-caps;
-    letter-spacing: 2px;
+    /* letter-spacing: 2px; */
+    vertical-align: middle;
 }
 
 .btn:hover {
     background-color: rgb(166, 213, 191);
+}
+
+.btn img {
+    float: left;
+    height: 24px;
 }

@@ -1,21 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<script src="content.js"></script>
-
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="animate.css">
+    <link rel="stylesheet" type="text/css" href="animate.css">
     <link rel="stylesheet" type="text/css" href="styles.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
 
 <body>
-    <span class="menu-icon" onClick="ocultarMenu()">ocultar resumen</span>
     <div class="logo-nav-container">
-        <div id="resumenVolumen" class="show">
-            <h2 class="logo">Volúmenes</h2>
+        <span class="menu-icon" onClick="ocultarMenu()">ocultar resumen</span>
+        <div id="resumenVolumen" class="show animated fadeInLeft faster">
+            <h2 class="logo"></h2>
             <div>
                 <table class="res">
                     <thead>
@@ -52,7 +50,7 @@
                     </tbody>
                 </table>
             </div>
-            <h2 class="logo precios">Precios</h2>
+            <h2 class="logo precios"></h2>
             <div>
                 <table class="res precio">
                     <thead>
@@ -97,11 +95,14 @@
                 </table>
             </div>
             <div class="container-btn">
-                <a class="link-to-download-json btn" href=# download='ofertas.html' style="display:none">JSON</a>
-                <a class="link-to-download-csv btn" href=# download='ofertas.html'>descargar</a>
+                <a class="link-to-download-json btn" href=# download='ofertas.html'><img src="icons/dl.png"></img>JS</a>
+                <a class="link-to-download-csv btn" href=# download='ofertas.html'><img src="icons/dl.png"></img>CSV</a>
             </div>
         </div>
     </div>
 </body>
+
+<script src="jquery.min.js"></script>
+<script src="content.js"></script>
 
 </html>

@@ -1,3 +1,6 @@
+// $(document).ready(function () {
+// console.log('se cargó el dom');
+
 var myTab = document.querySelector("#dgOfertaVenta"); //Hacer referencia a la tabla contenedora de las ofertas
 
 var ofertasLocal = [{ "numeroOferta": null, "numeroOrden": null, "mercado": '', "versiones": [{ "hora": 0, "volumen": 0, "precio": 0 }] }];
@@ -19,6 +22,7 @@ function Version(hora, volumen, porcentaje, precio, precioGba) {
 
 //----------------LECTURA DE LAS OFERTAS EN PANTALLA--------------------------------------------------------
 function leerTabla() {
+    var myTab = document.querySelector("#dgOfertaVenta"); //Hacer referencia a la tabla contenedora de las ofertas
     var ofertas = [];
     if (myTab != null) {
         for (i = 1; i < myTab.rows.length; i++) {
@@ -60,12 +64,12 @@ function leerLocal() {
 };
 
 //------------EJECUTA LA ACTUALIZACIÓN DEL RESUMEN CADA UN TIEMPO DEFINIDO---------------------
-var t = 60;
-setInterval(() => {
-    if (t > 0) { t = t - 1 } else { t = t + 59 };
-    console.log(decirHora() + " (" + t + ")");
-    actualizarResumen();
-}, 1000);
+// var t = 60;
+// setInterval(() => {
+//     if (t > 0) { t = t - 1 } else { t = t + 59 };
+//     console.log(decirHora() + " (" + t + ")");
+//     actualizarResumen();
+// }, 1000);
 
 //------------CONVIERTE FECHA/HORA DE TEXTO A FORMATO DATE-----------------------------------
 function dateToNumber(fechaHora) {
@@ -285,12 +289,12 @@ function ocultarMenu() {
         // menu.classList.add('animated', 'bounceOutLeft');
 
     if (menu.classList.contains('show')) {
-        console.log('clic1');
+        console.log('se ocultó');
         menu.classList.replace('show', 'noshow');
-        menu.classList.add('animated', 'fadeOutLeft', 'faster');
+        menu.classList.replace('fadeInLeft', 'fadeOutLeft');
         menuBtn.innerText = 'ver resumen';
     } else {
-        console.log('clic2');
+        console.log('se mostró');
         menu.classList.replace('noshow', 'show');
         menu.classList.replace('fadeOutLeft', 'fadeInLeft');
         menuBtn.innerText = 'ocultar resumen';
@@ -331,7 +335,7 @@ function iniciarResumen() {
     `
     <span class="menu-icon">ocultar resumen</span>
     <div class="logo-nav-container">
-    <div id="resumenVolumen" class="show">
+    <div id="resumenVolumen" class="show animated fadeInLeft faster">
     <div>
         <table class="res">
             <thead>
@@ -514,3 +518,5 @@ csvLink.setAttribute('download', csvName);
 //         window.location.href = uri + base64(format(template, ctx))
 //     }
 // })()
+
+// });
