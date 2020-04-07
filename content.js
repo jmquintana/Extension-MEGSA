@@ -114,7 +114,7 @@ function resaltarOferta(n, c) {
         })(i, d);
     }
 };
-
+/*
 //-------------------OBSERVER: DETECTA CAMBIOS EN LA TABLA DE OFERTAS---------------------------------------------------------------
 var tablaOfertas = myTab.firstElementChild;
 
@@ -184,7 +184,7 @@ var observador = new MutationObserver(mutations2 => {
 });
 
 observador.observe(procesando, configObservador);
-
+*/
 //---------------DEVUELVE LA HORA ACTUAL-------------------------------------------------------------------
 function decirHora() {
     var fecha = new Date()
