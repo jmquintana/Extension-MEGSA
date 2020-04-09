@@ -3,7 +3,7 @@
 
 var myTab = document.querySelector("#dgOfertaVenta"); //Hacer referencia a la tabla contenedora de las ofertas
 
-var ofertasLocal = [{ "numeroOferta": null, "numeroOrden": null, "mercado": '', "versiones": [{ "hora": 0, "volumen": 0, "precio": 0 }] }];
+// var ofertasLocalStorage = [{ "numeroOferta": null, "numeroOrden": null, "mercado": '', "versiones": [{ "hora": 0, "volumen": 0, "precio": 0 }] }];
 
 //----------------CONSTRUCTOR DE OFERTAS--------------------------------------------------------
 function Oferta(numeroOferta, mercado, versiones) {
@@ -22,7 +22,7 @@ function Version(hora, volumen, porcentaje, precio, precioGba) {
 
 //----------------LECTURA DE LAS OFERTAS EN PANTALLA--------------------------------------------------------
 function leerTabla() {
-    var myTab = document.querySelector("#dgOfertaVenta"); //Hacer referencia a la tabla contenedora de las ofertas
+    // var myTab = document.querySelector("#dgOfertaVenta"); //Hacer referencia a la tabla contenedora de las ofertas
     var ofertas = [];
     if (myTab != null) {
         for (i = 1; i < myTab.rows.length; i++) {
@@ -37,39 +37,69 @@ function leerTabla() {
                     parseFloat(myTab.firstElementChild.children[i].children[buscarColumna("Precio GBA (USD/MMBTU)")].innerText.split(',').join('.'))
                 )]
             )
-            ofertas.push(oferta);
+            var n = oferta.numeroOferta
+            ofertas[n-1] = oferta;
         };
     };
     return ofertas;
 }
 //------------------------------------------------------------------------------------------------
 
+//-------------------GUARDAR OFERTAS EN LOCAL STORAGE---------------------------------------------------------------
+function guardarOfertas(array) {
+    localStorage.setItem(subastaLocalSto, JSON.stringify(array));
+};
+
+//------------LEE LAS OFERTAS GUARDADAS EN EL LOCAL STORAGE------------------------------------
+var subastaLocalSto = 'S_CAMMESA-' + window.location.href.split('=')[1]
+function leerLocalStorage() {
+    ofertasLocalStorage = JSON.parse(localStorage.getItem(subastaLocalSto));
+};
 //------------CODIGO EJECUTADO------------------------------------
 var ofertas = leerTabla();
 console.log(ofertas);
 // localStorage.clear();
 // leerTabla();
 iniciarResumen();
-guardarOfertas(ofertas);
+// guardarOfertas(ofertas);
+var mostrarResumen = document.querySelector('.menu-icon');
+mostrarResumen.addEventListener("click", ocultarMenu, false);
 
-    var mostrarResumen = document.querySelector('.menu-icon');
-    // mostrarResumen.setAttribute('onclick', ocultarMenu);
-// leerLocal();
-
-mostrarResumen.addEventListener("click", ocultarMenu, false); 
-
-//------------LEE LAS OFERTAS GUARDADAS EN EL LOCAL STORAGE------------------------------------
-function leerLocal() {
-    ofertasLocal = JSON.parse(localStorage.getItem('ofertas'));
+//--------------ACTUALIZA OFERTAS EN MEMORIA LOCAL EN CASO DE HABER DETECTADO CAMBIOS-------------------------------------------------------
+function actualizarOfertas() {
+    var ofertas = leerTabla();
+    var ofertasLocalStorageNew = JSON.parse(localStorage.getItem(subastaLocalSto));
+    var ofertasLocalStorageOld = JSON.parse(localStorage.getItem(subastaLocalSto));
+    // if (ofertas != null && ofertas[0].versiones[0].volumen != null) { console.log('1 ' + ofertas[0].versiones[0].volumen) } else { console.log('1 ' + null) };
+    // if (ofertasLocalStorage != null && ofertasLocalStorage[0].versiones[0].volumen != null) { console.log('2 ' + ofertasLocalStorage[0].versiones[0].volumen) } else { console.log('2 ' + null)};
+    if (ofertasLocalStorageOld != null) {
+        for (var i = 0; i <= ofertas.length; i++) {
+            if (ofertasLocalStorageOld[i] != null) {
+                if (ofertas[i] != null) {
+                    if ((ofertas[i].versiones[0].volumen != ofertasLocalStorageOld[i].versiones[0].volumen) || (ofertas[i].versiones[0].precio != ofertasLocalStorageOld[i].versiones[0].precio)) {
+                        ofertasLocalStorageNew[i].versiones.unshift(ofertas[i].versiones[0]);
+                    };
+                } else if (ofertasLocalStorageOld[i].versiones[0].volumen != -1) {
+                    ofertasLocalStorageNew[i].versiones.unshift({ "hora": -1, "volumen": -1, "porcentaje": -1, "precio": -1, "precioGba": -1 });
+                };
+            } else {
+                ofertasLocalStorageNew[i] = ofertas[i];
+            };
+        };
+        //console.log(ofertasLocalStorageOld);
+        //console.log(ofertasLocalStorageNew);
+    } else { ofertasLocalStorageNew = ofertas };
+    guardarOfertas(ofertasLocalStorageNew);
 };
 
 //------------EJECUTA LA ACTUALIZACIÓN DEL RESUMEN CADA UN TIEMPO DEFINIDO---------------------
-// var t = 60;
-// setInterval(() => {
-//     if (t > 0) { t = t - 1 } else { t = t + 59 };
-//     console.log(decirHora() + " (" + t + ")");
-//     actualizarResumen();
-// }, 1000);
+var t = 60;
+setInterval(() => {
+    if (t > 0) { t = t - 1 } else { t = t + 59 };
+    console.log(decirHora() + " (" + t + ")");
+    actualizarOfertas();
+    actualizarResumen();
+}, 1000);
 
 //------------CONVIERTE FECHA/HORA DE TEXTO A FORMATO DATE-----------------------------------
 function dateToNumber(fechaHora) {
@@ -91,11 +121,6 @@ function buscarColumna(columna) {
     return encabezado.findIndex((element) => element === columna);
 };
 
-//-------------------GUARDAR OFERTAS EN LOCAL STORAGE---------------------------------------------------------------
-function guardarOfertas(array) {
-    localStorage.setItem('ofertas', JSON.stringify(array));
-};
-
 //-------------------RESALTA OFERTA CON NUMERO n CON EL COLOR c (ARREGLAR)---------------------------------------------------------------
 function resaltarOferta(n, c) {
     //Color row background in HSL space (easier to manipulate fading)
@@ -114,6 +139,28 @@ function resaltarOferta(n, c) {
         })(i, d);
     }
 };
+
+var OnProcess = false;
+function Spiner_Load() {
+    Hide_Spiner();
+    $('form').off('submit');
+    $('form').on('submit', function (e) {
+        Show_Spiner();
+    });
+}
+function Show_Spiner() {
+    $(".spinner-container").css("display", "block");
+    OnProcess = true;
+}
+function Hide_Spiner() {
+    $(".spinner-container").css("display", "none");
+    OnProcess = false;
+}
+
+$('body').on('load', function () {
+    Hide_Spiner();
+});
+
 /*
 //-------------------OBSERVER: DETECTA CAMBIOS EN LA TABLA DE OFERTAS---------------------------------------------------------------
 var tablaOfertas = myTab.firstElementChild;
@@ -146,6 +193,7 @@ var observer = new MutationObserver(mutations => {
 });
 
 observer.observe(tablaOfertas, configObserver);
+*/
 
 //-----------------OBSERVADOR: DETECTA CAMBIOS EN EL ELEMENTO "div.spinner-container"-----------------------------------------------------------------
 var procesando = document.querySelector("div.spinner-container");
@@ -161,13 +209,13 @@ var observador = new MutationObserver(mutations2 => {
     if (mutations2[0].target.children[1].parentNode.style.cssText == 'display: none;') {
         // console.log(mutations2[0].target.children[1].parentNode.style.cssText + '------------------------------------------------------');
         leerTabla();
-        var ofertasLocal = JSON.parse(localStorage.getItem('ofertas'));
+        var ofertasLocalStorage = JSON.parse(localStorage.getItem(subastaLocalSto));
 
         listaCambios = [];
         for (var i = 0; i < ofertas.length; i++) {
-            if (ofertasLocal[i] != null) {
-                if ((ofertasLocal[i].versiones[0].volumen != ofertas[i].versiones[0].volumen) || (ofertasLocal[i].versiones[0].precio != ofertas[i].versiones[0].precio)) {
-                    listaCambios.push(ofertasLocal[i].numeroOferta);
+            if (ofertasLocalStorage[i] != null) {
+                if ((ofertasLocalStorage[i].versiones[0].volumen != ofertas[i].versiones[0].volumen) || (ofertasLocalStorage[i].versiones[0].precio != ofertas[i].versiones[0].precio)) {
+                    listaCambios.push(ofertasLocalStorage[i].numeroOferta);
                 };
             };
         };
@@ -184,7 +232,6 @@ var observador = new MutationObserver(mutations2 => {
 });
 
 observador.observe(procesando, configObservador);
-*/
 //---------------DEVUELVE LA HORA ACTUAL-------------------------------------------------------------------
 function decirHora() {
     var fecha = new Date()
@@ -198,17 +245,17 @@ function decirHora() {
 //---------------PINTA LOS CAMBIOS INGRESADOS EN UN VECTOR DE NÚMERO DE OFERTA-------------------------------------------------------------------
 function pintarCambios(cambios) {
     leerTabla();
-    ofertasLocal = JSON.parse(localStorage.getItem('ofertas'));
+    ofertasLocalStorage = JSON.parse(localStorage.getItem(subastaLocalSto));
     for (var i = 0; i < cambios.length; i++) {
-        if ((ofertasLocal[cambios[i] - 1].versiones[0].volumen != ofertas[cambios[i] - 1].versiones[0].volumen) && (ofertasLocal[cambios[i] - 1].versiones[0].precio != ofertas[cambios[i] - 1].versiones[0].precio)) {
+        if ((ofertasLocalStorage[cambios[i] - 1].versiones[0].volumen != ofertas[cambios[i] - 1].versiones[0].volumen) && (ofertasLocalStorage[cambios[i] - 1].versiones[0].precio != ofertas[cambios[i] - 1].versiones[0].precio)) {
             resaltarOferta(cambios[i], 120) //VERDE
             console.log('Oferta ' + cambios[i] + ' cambió el volumen y el precio')
         } else {
-            if (ofertasLocal[cambios[i] - 1].versiones[0].volumen != ofertas[cambios[i] - 1].versiones[0].volumen) {
+            if (ofertasLocalStorage[cambios[i] - 1].versiones[0].volumen != ofertas[cambios[i] - 1].versiones[0].volumen) {
                 resaltarOferta(cambios[i], 60) //AMARILLO
                 console.log('Oferta ' + cambios[i] + ' cambió el volumen')
             } else {
-                if (ofertasLocal[cambios[i] - 1].versiones[0].precio != ofertas[cambios[i] - 1].versiones[0].precio) {
+                if (ofertasLocalStorage[cambios[i] - 1].versiones[0].precio != ofertas[cambios[i] - 1].versiones[0].precio) {
                     resaltarOferta(cambios[i], 180) //AZUL
                     console.log('Oferta ' + cambios[i] + ' cambió el precio')
                 } else {
@@ -221,62 +268,33 @@ function pintarCambios(cambios) {
     // actualizarResumen ();
 };
 
-//--------------ACTUALIZA OFERTAS EN MEMORIA LOCAL EN CASO DE HABER DETECTADO CAMBIOS-------------------------------------------------------
-function actualizarOfertas() {
-    leerTabla();
-    var ofertasLocal = JSON.parse(localStorage.getItem('ofertas'));
-    // if (ofertas != null && ofertas[0].versiones[0].volumen != null) { console.log('1 ' + ofertas[0].versiones[0].volumen) } else { console.log('1 ' + null) };
-    // if (ofertasLocal != null && ofertasLocal[0].versiones[0].volumen != null) { console.log('2 ' + ofertasLocal[0].versiones[0].volumen) } else { console.log('2 ' + null)};
-    if (ofertasLocal != null) {
-        for (var i = 0; i <= ofertas.length; i++) {
-            if (ofertasLocal[i] != null) {
-                if (ofertas[i] != null) {
-                    if ((ofertas[i].versiones[0].volumen != ofertasLocal[i].versiones[0].volumen) || (ofertas[i].versiones[0].precio != ofertasLocal[i].versiones[0].precio)) {
-                        ofertasLocal[i].versiones.unshift(ofertas[i].versiones[0]);
-                    };
-                } else {
-                    if (ofertasLocal[i].versiones[0].volumen != -1) {
-                        ofertasLocal[i].versiones.unshift({ "hora": -1, "volumen": -1, "precio": -1 });
-                    } else {
-                        ofertasLocal[i].versiones[0] = { "hora": -1, "volumen": -1, "precio": -1 };
-                    };
-                };
-            } else {
-                ofertasLocal[i] = ofertas[i];
-                //ofertasLocal[i].push(ofertas[i]);
-            };
-        };
-        //console.log(ofertasLocal);
-        //console.log(ofertas);
-    } else { ofertasLocal = ofertas };
-    guardarOfertas(ofertasLocal);
-};
 
 //-----------------CALCULA EL TOTAL DE VOLUMEN POR CUENCA-----------------------------------------------------------------
 function volumenTotal(cuenca) {
-    var ofertas = leerTabla();
-    var ofertasFiltradas = ofertas;
+    var arrayOfertas = leerTabla();
+    // console.log(arrayOfertas);
+    var ofertasFiltradas = arrayOfertas;
     if (cuenca !== "*") {
-        var ofertasFiltradas = ofertas.filter(item => item.mercado === cuenca)
+        var ofertasFiltradas = arrayOfertas.filter(item => item.mercado === cuenca)
     }
     return ofertasFiltradas.reduce((total, item) => total + item.versiones[0].volumen, 0)
 };
 
 //-----------------CALCULA PRECIO MINIMO POR CUENCA-----------------------------------------------------------------
 function menorPrecio(cuenca) {
-    var ofertas = leerTabla();
-    var ofertasFiltradas = ofertas;
+    var arrayOfertas = leerTabla();
+    var ofertasFiltradas = arrayOfertas;
     if (cuenca !== "*") {
-        var ofertasFiltradas = ofertas.filter(item => item.mercado === cuenca)
+        var ofertasFiltradas = arrayOfertas.filter(item => item.mercado === cuenca)
     }
-    var precios = ofertasFiltradas.map(item => { return item.versiones[0].precio })
+    var precios = ofertasFiltradas.map(item => { return item.versiones[0].precio }).filter(item => item !== null)
     return Math.min(...precios)
 };
 
 //-----------------CALCULA PORCENTAJE CORRESPONDIENTE AL PRECIO MINIMO POR CUENCA-----------------------------------------------------------------
 function menorPorcentajePrecio(cuenca) {
-    var ofertas = leerTabla();
-    var ofertasCuenca = ofertas.filter(item => item.mercado === cuenca)
+    var arrayOfertas = leerTabla();
+    var ofertasCuenca = arrayOfertas.filter(item => item.mercado === cuenca)
     var precios = ofertasCuenca.map(item => { return item.versiones[0].precio })
     var indice = precios.indexOf(menorPrecio(cuenca));
     return ofertasCuenca[indice].versiones[0].porcentaje;
@@ -286,7 +304,7 @@ function menorPorcentajePrecio(cuenca) {
 function ocultarMenu() {
     var menuBtn = document.querySelector('.menu-icon'),
         menu = document.querySelector("div#resumenVolumen");
-        // menu.classList.add('animated', 'bounceOutLeft');
+    // menu.classList.add('animated', 'bounceOutLeft');
 
     if (menu.classList.contains('show')) {
         console.log('se ocultó');
@@ -302,7 +320,7 @@ function ocultarMenu() {
 };
 
 function hasClass(element, className) {
-    return (' ' + element.className + ' ').indexOf(' ' + className+ ' ') > -1;
+    return (' ' + element.className + ' ').indexOf(' ' + className + ' ') > -1;
 };
 
 //-----------------INICIAR LA TABLA RESUMEN-----------------------------------------------------------------
@@ -314,7 +332,6 @@ function iniciarResumen() {
     var sczV = volumenTotal('SANTA CRUZ');
     var tdfV = volumenTotal('TIERRA DEL FUEGO');
     var totV = volumenTotal('*');
-    // var totV = noaV + nqnV + chuV + sczV + tdfV;
 
     var noaP = menorPrecio('NOROESTE');
     var nqnP = menorPrecio('NEUQUEN');
@@ -415,8 +432,8 @@ function iniciarResumen() {
         </table>
     </div>
     <div class="container-btn">
-        <a class="link-to-download-json btn" onclick=leerLocal() style="display:none">JSON</a>
-        <a class="link-to-download-csv btn" onclick=leerLocal()>DESCARGAR</a>
+        <a class="link-to-download-json btn" onclick=leerLocalStorage() style="display:none">JSON</a>
+        <a class="link-to-download-csv btn" onclick=leerLocalStorage()>DESCARGAR</a>
     </div>
 </div>
 </div>
@@ -469,9 +486,9 @@ function actualizarResumen() {
     ppScz.textContent = menorPorcentajePrecio('SANTA CRUZ').toLocaleString('de-ES', { minimumFractionDigits: 2 }) + ' %'
     ppTdf.textContent = menorPorcentajePrecio('TIERRA DEL FUEGO').toLocaleString('de-ES', { minimumFractionDigits: 2 }) + ' %'
 };
-//-------DOWNLOAD LOCAL STORAGE--------------------------------------------------------------------------
 
-var _myArray = JSON.stringify(ofertasLocal, null, 2); //indentation in json format, human readable
+//-------DOWNLOAD LOCAL STORAGE--------------------------------------------------------------------------
+var _myArray = JSON.stringify(ofertasLocalStorage, null, 2); //indentation in json format, human readable
 var jsonLink = document.querySelector('.link-to-download-json'),
     jsonBlob = new Blob([_myArray], { type: "octet/stream" }),
     jsonName = 'ofertas.json',
@@ -518,5 +535,4 @@ csvLink.setAttribute('download', csvName);
 //         window.location.href = uri + base64(format(template, ctx))
 //     }
 // })()
-
 // });
