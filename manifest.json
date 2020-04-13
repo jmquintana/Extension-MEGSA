@@ -11,7 +11,7 @@
     },
     "background": {
         "scripts": ["background.js"],
-        "persistent": true
+        "persistent": false
     },
     "browser_action": {
         "default_icon": "check.png"
@@ -19,7 +19,7 @@
     "content_scripts": [
         {
             "css": ["styles.css", "animate.css"],
-            "js": ["jquery.min.js","numeral.min.js","content.js"],
+            "js": ["numeral.min.js","content.js"],
             "matches": ["https://negociacion.megsa.ar/Usuario/CAMMESA/GlobalVentaCAMMESA.aspx?ronda*",
                         "https://negociacion.megsa.ar/Usuario/CAMMESA/GlobalVentaCAMMESA*"]
         }
@@ -28,5 +28,6 @@
         "activeTab",
         "storage",
         "downloads"
-    ]
+    ],
+    "web_accessible_resources": ["script.js", "numeral.min.js"]
 }
