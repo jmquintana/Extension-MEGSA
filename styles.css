@@ -73,6 +73,10 @@ table.res {
     text-align: right;
 }
 
+.res th:nth-child(1) {
+    text-align: left;
+}
+
 .res tbody td {
     padding: 5px;
     background-color: #7a8ab8;
@@ -90,9 +94,19 @@ table.res {
     background-color: #99a7d4;
 }
 
-.res tbody tr td:nth-child(2),
-.res tbody tr th:nth-child(2) {
+.res.precio tbody tr td:nth-child(2),
+.res.precio tbody tr th:nth-child(2) {
     text-align: right;
+}
+
+.res.volumen tbody tr td:nth-child(2),
+.res.volumen tbody tr th:nth-child(2) {
+    text-align: center;
+}
+
+.res td:nth-child(2),
+.res th:nth-child(2) {
+    font-size: 0.9em;
 }
 
 .res tbody tr td:nth-child(3) {

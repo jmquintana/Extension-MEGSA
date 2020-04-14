@@ -63,13 +63,13 @@ iniciarResumen();
 var mostrarResumen = document.querySelector('.menu-icon');
 mostrarResumen.addEventListener("click", ocultarMenu, false);
 //------------EJECUTA LA ACTUALIZACIÓN DEL RESUMEN CADA UN TIEMPO DEFINIDO---------------------
-var t = 60;
-setInterval(() => {
-    // if (t > 0) { t = t - 1 } else { t = t + 59 };
-    // console.log(decirHora() + " (" + t + ")", leerTabla()[28].versiones[0].volumen);
-    actualizarOfertas();
-    actualizarResumen();
-}, 500);
+// var t = 60;
+// setInterval(() => {
+//     // if (t > 0) { t = t - 1 } else { t = t + 59 };
+//     // console.log(decirHora() + " (" + t + ")", leerTabla()[28].versiones[0].volumen);
+//     actualizarOfertas();
+//     actualizarResumen();
+// }, 5000);
 //---------------------------------------------------------------------------------------------
 //--------------ACTUALIZA OFERTAS EN MEMORIA LOCAL EN CASO DE HABER DETECTADO CAMBIOS-------------------------------------------------------
 function actualizarOfertas() {
@@ -85,8 +85,9 @@ function actualizarOfertas() {
                     if ((ofertas[i].versiones[0].volumen != ofertasLocalStorageOld[i].versiones[0].volumen) || (ofertas[i].versiones[0].precio != ofertasLocalStorageOld[i].versiones[0].precio)) {
                         ofertasLocalStorageNew[i].versiones.unshift(ofertas[i].versiones[0]);
                     };
-                } else if (ofertasLocalStorageOld[i].versiones[0].volumen != -1) {
-                    ofertasLocalStorageNew[i].versiones.unshift({ "hora": -1, "volumen": -1, "porcentaje": -1, "precio": -1, "precioGba": -1 });
+                } else if (ofertasLocalStorageOld[i].versiones[0].volumen != null) {
+                    ofertasLocalStorageNew[i].numeroOrden = null;
+                    ofertasLocalStorageNew[i].versiones.unshift({ "hora": new Date(), "volumen": null, "porcentaje": null, "precio": null, "precioGba": null });
                 };
             } else {
                 ofertasLocalStorageNew[i] = ofertas[i];
@@ -125,10 +126,10 @@ function resaltarOferta(n, c) {
     var filaOferta = $('.dataGrid').children(0).children(0);
     let ofertas = leerTabla();
     var x = ofertas[n - 1].numeroOrden
-    filaOferta.eq(x).css('backgroundColor', 'hsl(' + c + ', 100%, 80%)');
+    filaOferta.eq(x).css('backgroundColor', 'hsl(' + c + ', 100%, 50%)');
 
     var d = 0;
-    for (var i = 80; i <= 100; i = i + 1) { //i represents the lightness
+    for (var i = 50; i <= 100; i = i + 1) { //i represents the lightness
         d += 40;
         (function (ii, dd) {
             setTimeout(function () {
@@ -154,13 +155,13 @@ var observer = new MutationObserver(mutations => {
     let listaCambios = [];
     if (mutations[0].target != 'div#udtGridUpdater') {
         for (i = 0; i < mutations.length; i++) {
-            var nn = mutations[i].addedNodes[0].parentNode.parentNode.cells[2].innerHTML;
+            var nn = parseInt(mutations[i].addedNodes[0].parentNode.parentNode.cells[2].innerHTML);
             listaCambios.push(nn);
             // console.log('Cambió la oferta número ' + nn);
         };
-        console.log(listaCambios);
+        console.log('(' + decirHora() + ')', listaCambios);
         pintarCambios(listaCambios);
-        // actualizarResumen();
+        actualizarResumen();
     };
 });
 
@@ -182,20 +183,21 @@ var observador = new MutationObserver(mutations2 => {
         let arregloOfertas = leerTabla();
         let ofertasLocalStorage = leerLocalStorage();
         for (var i = 0; i < arregloOfertas.length; i++) {
-            if (ofertasLocalStorage[i] != null) {
+            if (ofertasLocalStorage[i] && ofertasLocalStorage[i].versiones && arregloOfertas[i]) {
                 if ((ofertasLocalStorage[i].versiones[0].volumen != arregloOfertas[i].versiones[0].volumen) || (ofertasLocalStorage[i].versiones[0].precio != arregloOfertas[i].versiones[0].precio)) {
                     listaCambios.push(ofertasLocalStorage[i].numeroOferta);
                 };
             };
         };
         if (listaCambios.length === 0) {
-            console.log('(' + decirHora() + ') No hubo cambios');
+            console.log('(' + decirHora() + ')', 'No hubo cambios');
         } else {
-            console.log('(' + decirHora() + ') ' + listaCambios);
+            console.log('(' + decirHora() + ') ', listaCambios);
         };
         var tablaOfertas = myTab.firstElementChild;
         observer.observe(tablaOfertas, configObserver);
         pintarCambios(listaCambios);
+        actualizarResumen();
     };
     // console.log('(' + decirHora() + ') ' + listaCambios);
 });
@@ -216,21 +218,26 @@ function pintarCambios(cambios) {
     var arregloOfertas = leerTabla();
     var ofertasLocalStorage = JSON.parse(localStorage.getItem(subastaLocalSto));
     for (var i = 0; i < cambios.length; i++) {
-        if ((ofertasLocalStorage[cambios[i] - 1].versiones[0].volumen != arregloOfertas[cambios[i] - 1].versiones[0].volumen) && (ofertasLocalStorage[cambios[i] - 1].versiones[0].precio != arregloOfertas[cambios[i] - 1].versiones[0].precio)) {
-            resaltarOferta(cambios[i], 0) //VERDE
-            console.log('Oferta ' + cambios[i] + ' cambió el volumen y el precio')
-        } else {
-            if (ofertasLocalStorage[cambios[i] - 1].versiones[0].volumen != arregloOfertas[cambios[i] - 1].versiones[0].volumen) {
-                resaltarOferta(cambios[i], 60) //AMARILLO
-                console.log('Oferta ' + cambios[i] + ' cambió el volumen')
+        if (ofertasLocalStorage[cambios[i] - 1]) {
+            if ((ofertasLocalStorage[cambios[i] - 1].versiones[0].volumen != arregloOfertas[cambios[i] - 1].versiones[0].volumen) && (ofertasLocalStorage[cambios[i] - 1].versiones[0].precio != arregloOfertas[cambios[i] - 1].versiones[0].precio)) {
+                resaltarOferta(cambios[i], 40) //NARANJA
+                console.log('Oferta ' + cambios[i] + ' cambió el volumen y el precio')
             } else {
-                if (ofertasLocalStorage[cambios[i] - 1].versiones[0].precio != arregloOfertas[cambios[i] - 1].versiones[0].precio) {
-                    resaltarOferta(cambios[i], 180) //AZUL
-                    console.log('Oferta ' + cambios[i] + ' cambió el precio')
+                if (ofertasLocalStorage[cambios[i] - 1].versiones[0].volumen != arregloOfertas[cambios[i] - 1].versiones[0].volumen) {
+                    resaltarOferta(cambios[i], 60) //AMARILLO
+                    console.log('Oferta ' + cambios[i] + ' cambió el volumen')
                 } else {
-                    console.log('Oferta ' + cambios[i] + ' sin cambios')
+                    if (ofertasLocalStorage[cambios[i] - 1].versiones[0].precio != arregloOfertas[cambios[i] - 1].versiones[0].precio) {
+                        resaltarOferta(cambios[i], 200) //AZUL
+                        console.log('Oferta ' + cambios[i] + ' cambió el precio')
+                    } else {
+                        console.log('Oferta ' + cambios[i] + ' sin cambios')
+                    };
                 };
             };
+        } else {
+            resaltarOferta(cambios[i], 160) //VERDE
+            console.log('Oferta ' + cambios[i] + ' es nueva')
         };
     };
     actualizarOfertas();
@@ -246,6 +253,17 @@ function volumenTotal(cuenca) {
         var ofertasFiltradas = arrayOfertas.filter(item => item.mercado === cuenca)
     }
     return ofertasFiltradas.reduce((total, item) => total + item.versiones[0].volumen, 0)
+};
+
+//-----------------CALCULA EL NUMERO DE OFERTAS POR CUENCA-----------------------------------------------------------------
+function cantidadOfertas(cuenca) {
+    var arrayOfertas = leerTabla();
+    // console.log(arrayOfertas);
+    var ofertasFiltradas = arrayOfertas;
+    if (cuenca !== "*") {
+        var ofertasFiltradas = arrayOfertas.filter(item => (item.mercado === cuenca) && item)
+    }
+    return ofertasFiltradas.filter(item => item ).length
 };
 
 //-----------------CALCULA PRECIO MINIMO POR CUENCA-----------------------------------------------------------------
@@ -301,6 +319,13 @@ function iniciarResumen() {
     var tdfV = volumenTotal('TIERRA DEL FUEGO');
     var totV = volumenTotal('*');
 
+    var noaC = cantidadOfertas('NOROESTE');
+    var nqnC = cantidadOfertas('NEUQUEN');
+    var chuC = cantidadOfertas('CHUBUT');
+    var sczC = cantidadOfertas('SANTA CRUZ');
+    var tdfC = cantidadOfertas('TIERRA DEL FUEGO');
+    var totC = cantidadOfertas('*');
+
     var noaP = menorPrecio('NOROESTE');
     var nqnP = menorPrecio('NEUQUEN');
     var chuP = menorPrecio('CHUBUT');
@@ -322,36 +347,42 @@ function iniciarResumen() {
     <div class="logo-nav-container">
     <div id="resumenVolumen" class="show animated fadeInLeft faster">
     <div>
-        <table class="res">
+        <table class="res volumen">
             <thead>
                 <tr>
-                    <th>Mercado</th>
-                    <th>Volumen Total</th>
+                    <th colspan="2">Mercado</th>
+                    <th >Volumen</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
                     <td>NOA</td>
+                    <td id="noaC">(${noaC})</td>
                     <td id="noaV">${noaV.toLocaleString('de-ES')}</td>
                 </tr>
                 <tr>
                     <td>NQN</td>
+                    <td id="nqnC">(${nqnC})</td>
                     <td id="nqnV">${nqnV.toLocaleString('de-ES')}</td>
                 </tr>
                 <tr>
                     <td>CHU</td>
+                    <td id="chuC">(${chuC})</td>
                     <td id="chuV">${chuV.toLocaleString('de-ES')}</td>
                 </tr>
                 <tr>
                     <td>SCZ</td>
+                    <td id="sczC">(${sczC})</td>
                     <td id="sczV">${sczV.toLocaleString('de-ES')}</td>
                 </tr>
                 <tr>
                     <td>TDF</td>
+                    <td id="tdfC">(${tdfC})</td>
                     <td id="tdfV">${tdfV.toLocaleString('de-ES')}</td>
                 </tr>
                 <tr>
                     <th>TOTAL</th>
+                    <th id="totC">(${totC})</th>
                     <th id="totV">${totV.toLocaleString('de-ES')}</th>
                 </tr>
             </tbody>
@@ -428,6 +459,21 @@ function actualizarResumen() {
     volScz.textContent = volumenTotal('SANTA CRUZ').toLocaleString('de-ES');
     volTdf.textContent = volumenTotal('TIERRA DEL FUEGO').toLocaleString('de-ES');
     volTot.textContent = volumenTotal('*').toLocaleString('de-ES');
+
+    //CANTIDAD DE OFERTAS
+    var volNoa = document.getElementById('noaC');
+    var volNqn = document.getElementById('nqnC');
+    var volChu = document.getElementById('chuC');
+    var volScz = document.getElementById('sczC');
+    var volTdf = document.getElementById('tdfC');
+    var volTot = document.getElementById('totC');
+
+    volNoa.textContent = '(' + cantidadOfertas('NOROESTE') + ')';
+    volNqn.textContent = '(' + cantidadOfertas('NEUQUEN') + ')';
+    volChu.textContent = '(' + cantidadOfertas('CHUBUT') + ')';
+    volScz.textContent = '(' + cantidadOfertas('SANTA CRUZ') + ')';
+    volTdf.textContent = '(' + cantidadOfertas('TIERRA DEL FUEGO') + ')';
+    volTot.textContent = '(' + cantidadOfertas('*') + ')';
 
     //PRECIOS
     var pNoa = document.getElementById('noaP')
