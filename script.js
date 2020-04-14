@@ -125,11 +125,11 @@ function resaltarOferta(n, c) {
     var filaOferta = $('.dataGrid').children(0).children(0);
     let ofertas = leerTabla();
     var x = ofertas[n - 1].numeroOrden
-    filaOferta.eq(x).css('backgroundColor', 'hsl(' + c + ', 100%, 50%)');
+    filaOferta.eq(x).css('backgroundColor', 'hsl(' + c + ', 100%, 80%)');
 
-    var d = 100;
-    for (var i = 50; i <= 100; i = i + 1) { //i represents the lightness
-        d += 25;
+    var d = 0;
+    for (var i = 80; i <= 100; i = i + 1) { //i represents the lightness
+        d += 40;
         (function (ii, dd) {
             setTimeout(function () {
                 filaOferta.eq(x).css('backgroundColor', 'hsl(' + c + ',100%,' + ii + '%)');
@@ -400,12 +400,15 @@ function iniciarResumen() {
         </table>
     </div>
     <div class="container-btn">
-        <a class="link-to-download-json btn" onclick=leerLocalStorage() style="display:block">JSON</a>
-        <a class="link-to-download-csv btn" onclick=leerLocalStorage()>CSV</a>
+        <a class="link-to-download-json btn" href=jsonUrl style="display:block">JSON</a>
+        <a class="link-to-download-csv btn" href=csvUrl>CSV</a>
     </div>
 </div>
 </div>
 `
+
+
+
     //style="display:none"
 };
 
@@ -455,39 +458,7 @@ function actualizarResumen() {
     ppTdf.textContent = menorPorcentajePrecio('TIERRA DEL FUEGO').toLocaleString('de-ES', { minimumFractionDigits: 2 }) + ' %'
 };
 
-//-------DOWNLOAD LOCAL STORAGE--------------------------------------------------------------------------
-var _myArray = JSON.stringify(leerLocalStorage(), null, 2); //indentation in json format, human readable
-var jsonLink = document.querySelector('.link-to-download-json'),
-    jsonBlob = new Blob([_myArray], { type: "octet/stream" }),
-    jsonName = 'ofertas.json',
-    jsonUrl = window.URL.createObjectURL(jsonBlob);
-jsonLink.setAttribute('href', jsonUrl);
-jsonLink.setAttribute('download', jsonName);
-// vLink.click();
 
-//-------EXPORTAR TABLA A CSV--------------------------------------------------------------------------
-(function exportTableToCSV() {
-    csv = [];
-    var rows = document.querySelectorAll(".dataGrid tbody tr");
-    for (var i = 0; i < rows.length; i++) {
-        var row = [], cols = rows[i].querySelectorAll("td, th");
-        for (var j = 0; j < cols.length; j++) {
-            row.push(cols[j].innerText);
-        };
-        row = row.join(";");
-        csv.push(row);
-    };
-    csv = csv.join('\n');
-    return csv
-})();
-
-//-------BAJAR TABLA A CSV--------------------------------------------------------------------------
-var csvLink = document.querySelector('.link-to-download-csv'),
-    csvBlob = new Blob([csv], { type: "text/csv" }),
-    csvName = 'ofertas.csv',
-    csvUrl = window.URL.createObjectURL(csvBlob);
-csvLink.setAttribute('href', csvUrl);
-csvLink.setAttribute('download', csvName);
 
 //-------BAJAR TABLA A XLS--------------------------------------------------------------------------
 
@@ -503,3 +474,42 @@ csvLink.setAttribute('download', csvName);
 //     }
 // })()
 // });
+var jsonBtn = document.querySelector('.link-to-download-json')
+jsonBtn.onclick = function () {
+    //-------DOWNLOAD LOCAL STORAGE--------------------------------------------------------------------------
+    //Hacer funcion acá, para que siempre se esté bajando el local storage de cada momento.---------------------------------------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    var _myArray = JSON.stringify(leerLocalStorage(), null, 2); //indentation in json format, human readable
+    var jsonLink = document.querySelector('.link-to-download-json'),
+        jsonBlob = new Blob([_myArray], { type: "octet/stream" }),
+        jsonName = 'ofertas.json',
+        jsonUrl = window.URL.createObjectURL(jsonBlob);
+    jsonLink.setAttribute('href', jsonUrl);
+    jsonLink.setAttribute('download', jsonName);
+    // jsonLink.click();
+};
+
+var csvBtn = document.querySelector('.link-to-download-csv')
+csvBtn.onclick = function () {
+    //-------EXPORTAR TABLA A CSV--------------------------------------------------------------------------
+    function exportTableToCSV() {
+        var csv = [];
+        var rows = document.querySelectorAll(".dataGrid tbody tr");
+        for (var i = 0; i < rows.length; i++) {
+            var row = [], cols = rows[i].querySelectorAll("td, th");
+            for (var j = 0; j < cols.length; j++) {
+                row.push(cols[j].innerText);
+            };
+            row = row.join(";");
+            csv.push(row);
+        };
+        csv = csv.join('\n');
+        return csv
+    }
+    //-------BAJAR TABLA A CSV--------------------------------------------------------------------------
+    var csvLink = document.querySelector('.link-to-download-csv'),
+        csvBlob = new Blob([exportTableToCSV()], { type: "text/csv" }),
+        csvName = 'ofertas.csv',
+        csvUrl = window.URL.createObjectURL(csvBlob);
+    csvLink.setAttribute('href', csvUrl);
+    csvLink.setAttribute('download', csvName);
+};
