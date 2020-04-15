@@ -29,5 +29,5 @@
         "storage",
         "downloads"
     ],
-    "web_accessible_resources": ["script.js", "numeral.min.js"]
+    "web_accessible_resources": ["script.js", "numeral.min.js", "prueba.html"]
 }

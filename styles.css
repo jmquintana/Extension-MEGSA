@@ -60,16 +60,22 @@ table.res {
     border-collapse: collapse;
 }
 
-.res thead {
-    border-bottom: solid 2px #1f457a
+.res tfoot {
+    border-top: solid 2px #1f457a;
+    font-size: 1em;;
 }
 
-.res thead tr th {
+.res thead tr th,
+.res tfoot tr th {
     padding: 5px 5px;
     background-color: #43568f;
 }
 
-.res thead tr th:nth-child(2) {
+.res tfoot tr th:nth-child(2) {
+    text-align: center;
+}
+
+.res tfoot tr th:nth-child(3) {
     text-align: right;
 }
 
@@ -77,35 +83,39 @@ table.res {
     text-align: left;
 }
 
+.res th:nth-child(2) {
+    text-align: right;
+}
+
 .res tbody td {
     padding: 5px;
     background-color: #7a8ab8;
 }
 
-.res tbody th {
+.res thead th {
     /* border:solid 1px white; */
     /* font-size: 0.9em; */
     padding: 5px;
     background-color: #43568f;
-    border-top: solid 2px #1f457a
+    border-bottom: solid 2px #1f457a
 }
 
 .res tbody tr:nth-child(even) td {
     background-color: #99a7d4;
 }
 
-.res.precio tbody tr td:nth-child(2),
-.res.precio tbody tr th:nth-child(2) {
-    text-align: right;
-}
-
-.res.volumen tbody tr td:nth-child(2),
-.res.volumen tbody tr th:nth-child(2) {
+.res tbody td:nth-child(2),
+.res tfoot th:nth-child(2) {
     text-align: center;
 }
 
-.res td:nth-child(2),
-.res th:nth-child(2) {
+/* .res.volumen tbody tr td:nth-child(2),
+.res.volumen tbody tr th:nth-child(2) {
+    text-align: center;
+} */
+
+.res tbody td:nth-child(2),
+.res tfoot th:nth-child(2) {
     font-size: 0.9em;
 }
 

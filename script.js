@@ -380,12 +380,14 @@ function iniciarResumen() {
                     <td id="tdfC">(${tdfC})</td>
                     <td id="tdfV">${tdfV.toLocaleString('de-ES')}</td>
                 </tr>
+            </tbody>
+            <tfoot>
                 <tr>
                     <th>TOTAL</th>
                     <th id="totC">(${totC})</th>
                     <th id="totV">${totV.toLocaleString('de-ES')}</th>
                 </tr>
-            </tbody>
+            </tfoot>
         </table>
     </div>
     <h2 class="logo precios"></h2>
@@ -423,11 +425,14 @@ function iniciarResumen() {
                     <td id="tdfPP">${tdfPP.toLocaleString('de-ES', { minimumFractionDigits: 2 })} %</td>
                     <td id="tdfP">${tdfP.toLocaleString('de-ES', { minimumFractionDigits: 4 })}</td>
                 </tr>
+            </tbody>
+            <tfoot>
                 <tr>
                     <th>TOTAL</th>
+                    <th></th>
                     <th id="totP" colspan="2">${totP.toLocaleString('de-ES', { minimumFractionDigits: 4 })}</th>
                 </tr>
-            </tbody>
+            </tfoot>
         </table>
     </div>
     <div class="container-btn">

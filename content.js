@@ -11,3 +11,8 @@ n.onload = function() {
     this.remove();
 };
 (document.head || document.documentElement).appendChild(n);
+
+// var iframe  = document.createElement ("iframe");
+// iframe.src  = chrome.extension.getURL ("prueba.html");
+// var yourDIV = document.querySelector("body");
+// yourDIV.appendChild(iframe);
