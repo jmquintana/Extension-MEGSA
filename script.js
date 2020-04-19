@@ -53,7 +53,6 @@ function guardarOfertas(array) {
 function leerLocalStorage() {
     console.log('Se lee el Local Storage');
     return JSON.parse(localStorage.getItem(subastaLocalSto));
-    // return ofertasLocalStorage;
 };
 //------------CODIGO EJECUTADO----------------------------------------------------------------
 // var ofertas = leerTabla();
@@ -61,7 +60,13 @@ function leerLocalStorage() {
 // localStorage.clear();
 // leerTabla();
 iniciarResumen();
-guardarOfertas(leerTabla());
+var ofertasLocalStorage = [];
+
+if (!leerLocalStorage()) {
+    guardarOfertas(leerTabla());
+};
+
+// guardarOfertas(leerTabla());
 var mostrarResumen = document.querySelector('.menu-icon');
 mostrarResumen.addEventListener("click", ocultarMenu, false);
 //------------EJECUTA LA ACTUALIZACIÓN DEL RESUMEN CADA UN TIEMPO DEFINIDO---------------------
@@ -73,59 +78,69 @@ mostrarResumen.addEventListener("click", ocultarMenu, false);
 //     actualizarResumen();
 // }, 5000);
 //---------------------------------------------------------------------------------------------
+
+//---------------DEVUELVE LA HORA ACTUAL-------------------------------------------------------------------
+function decirHora() {
+    var fecha = new Date()
+    var horas = fecha.getHours()
+    var minutos = fecha.getMinutes()
+    var segundos = fecha.getSeconds()
+    var horaActual = numeral(horas).format('00') + ":" + numeral(minutos).format('00') + ":" + numeral(segundos).format('00');
+    return horaActual;
+};
+
 //--------------ACTUALIZA OFERTAS EN MEMORIA LOCAL EN CASO DE HABER DETECTADO CAMBIOS-------------------------------------------------------
 function actualizarOfertas() {
+
     var ofertas = leerTabla();
-    // var ofertasLocalStorageNew = leerLocalStorage();
-    var ofertasLocalStorageOld = leerLocalStorage();
-    // if (ofertas != null && ofertas[0].versiones[0].volumen != null) { console.log('1 ' + ofertas[0].versiones[0].volumen) } else { console.log('1 ' + null) };
-    // if (ofertasLocalStorage != null && ofertasLocalStorage[0].versiones[0].volumen != null) { console.log('2 ' + ofertasLocalStorage[0].versiones[0].volumen) } else { console.log('2 ' + null)};
-    if (ofertasLocalStorageOld != null) {
+    // var ofertasLocalStorage = leerLocalStorage();
+
+    if (ofertasLocalStorage != null) {
         for (var i = 0; i <= ofertas.length; i++) {
 
-            // var volumenNew = 0;
-            // var precioNew = 0;
-            // var volumenOld = 0;
-            // var precioOld = 0;
+            var volumenNew = 0;
+            var precioNew = 0;
+            var volumenOld = 0;
+            var precioOld = 0;
 
             if (ofertas[i]) {
-                var volumenNew = ofertas[i].versiones[0].volumen;
-                var precioNew = ofertas[i].versiones[0].precio;
+                volumenNew = ofertas[i].versiones[0].volumen;
+                precioNew = ofertas[i].versiones[0].precio;
             } else {
                 volumenNew = null
                 precioNew = null
             };
 
-            if (ofertasLocalStorageOld[i]) {
-                var volumenOld = ofertas[i].versiones[0].volumen;
-                var precioOld = ofertas[i].versiones[0].precio;
+            if (ofertasLocalStorage[i]) {
+                volumenOld = ofertasLocalStorage[i].versiones[0].volumen;
+                precioOld = ofertasLocalStorage[i].versiones[0].precio;
             } else {
                 volumenOld = null
                 precioOld = null
             };
 
-            if (ofertas[i] != null && ofertasLocalStorageOld[i] == null) {
-                console.log(i, true, false);
-                ofertasLocalStorageOld[i] = ofertas[i];
-            } else if (ofertas[i] == null && ofertasLocalStorageOld[i] != null) {
-                console.log(i, false, true);
-                ofertasLocalStorageOld[i].numeroOrden = null;
-                ofertasLocalStorageOld[i].versiones.unshift(new Version(new Date(), null, null, null, null));
-            }else if (ofertas[i] == null && ofertasLocalStorageOld[i] == null) {
-                console.log(i, false, false);
-            // } else if (volumenNew != volumenOld || precioNew != precioOld) {
-            } else if (true) {
-                console.log(i, volumenNew, volumenOld, precioNew, precioOld);
-                // console.log(i, 'verificar cambios');
-                ofertasLocalStorageOld[i].versiones.unshift(ofertas[i].versiones[0]);
+            if (ofertas[i] != null && ofertasLocalStorage[i] == null) {
+                // console.log(i, true, false);
+                ofertasLocalStorage[i] = ofertas[i];
+            } else if (ofertas[i] == null && ofertasLocalStorage[i] != null) {
+                // console.log(i, false, true);
+                ofertasLocalStorage[i].numeroOrden = null;
+                if (volumenOld != null){
+                    ofertasLocalStorage[i].versiones.unshift(new Version(new Date(), null, null, null, null));
+                }
+            }else if (ofertas[i] == null && ofertasLocalStorage[i] == null) {
+                // console.log(i, false, false);
+            } else if (volumenNew != volumenOld || precioNew != precioOld) {
+                // console.log(i, volumenNew, volumenOld, precioNew, precioOld);
+                ofertasLocalStorage[i].versiones.unshift(ofertas[i].versiones[0]);
             }
         };
     } else {
-        ofertasLocalStorageOld = ofertas
+        ofertasLocalStorage = ofertas
         console.log('Se copiaron las ofertas');
     };
     console.log('Se actualizaron las ofertas');
-    guardarOfertas(ofertasLocalStorageOld);
+    guardarOfertas(ofertasLocalStorage);
 };
 
 //------------CONVIERTE FECHA/HORA DE TEXTO A FORMATO DATE-----------------------------------
@@ -151,7 +166,6 @@ function buscarColumna(columna) {
 //-------------------RESALTA OFERTA CON NUMERO n CON EL COLOR c (ARREGLAR)---------------------------------------------------------------
 function resaltarOferta(n, c) {
     //Color row background in HSL space (easier to manipulate fading)
-    // var tablaValores = 'table.dataGrid > tbody > tr';
     var filaOferta = $('.dataGrid').children(0).children(0);
     let ofertas = leerTabla();
     var x = ofertas[n - 1].numeroOrden
@@ -179,23 +193,22 @@ var configObserver = {
 };
 
 var observer = new MutationObserver(mutations => {
-    // console.log(mutations);
-    // console.log(mutations[0].target);
+
     let listaCambios = [];
     let nn = 0
     // console.log(mutations);
     for (i = 0; i < mutations.length; i++) {
         if (mutations[i].target != 'div#udtGridUpdater') {
             if (mutations[i].addedNodes.length > 0 && mutations[0].removedNodes.length === 0) {
-                nn = parseInt(mutations[i].addedNodes[0].cells[2].innerHTML);
+                nn = parseInt(mutations[i].addedNodes[0].cells[buscarColumna("Nro.Oferta")].innerHTML);
                 console.log("Se agregó oferta", nn);
                 listaCambios.push(nn);
             } else if (mutations[i].addedNodes.length === 0 && mutations[0].removedNodes.length > 0) {
-                nn = parseInt(mutations[i].removedNodes[0].cells[2].innerHTML);
+                nn = parseInt(mutations[i].removedNodes[0].cells[buscarColumna("Nro.Oferta")].innerHTML);
                 console.log("Se eliminó oferta", nn);
             } else {
                 for (i = 0; i < mutations.length; i++) {
-                    nn = parseInt(mutations[i].addedNodes[0].parentNode.parentNode.cells[2].innerText);
+                    nn = parseInt(mutations[i].addedNodes[0].parentNode.parentNode.cells[buscarColumna("Nro.Oferta")].innerText);
                     console.log("Cambió oferta", nn);
                     listaCambios.push(nn);
                 };
@@ -203,7 +216,6 @@ var observer = new MutationObserver(mutations => {
         };
         // console.log('(' + decirHora() + ')', listaCambios, mutations[0]);
         pintarCambios(listaCambios);
-        actualizarResumen();
     };
 });
 
@@ -223,7 +235,7 @@ var observador = new MutationObserver(mutations2 => {
     let listaCambios = [];
     if (mutations2[0].target.children[1].parentNode.style.cssText == 'display: none;') {
         let arregloOfertas = leerTabla();
-        let ofertasLocalStorage = leerLocalStorage();
+        // ofertasLocalStorage = leerLocalStorage();
         for (var i = 0; i < arregloOfertas.length; i++) {
             if (ofertasLocalStorage[i] && ofertasLocalStorage[i].versiones && arregloOfertas[i]) {
                 if ((ofertasLocalStorage[i].versiones[0].volumen != arregloOfertas[i].versiones[0].volumen) || (ofertasLocalStorage[i].versiones[0].precio != arregloOfertas[i].versiones[0].precio)) {
@@ -245,31 +257,47 @@ var observador = new MutationObserver(mutations2 => {
 });
 
 observador.observe(procesando, configObservador);
-//---------------DEVUELVE LA HORA ACTUAL-------------------------------------------------------------------
-function decirHora() {
-    var fecha = new Date()
-    var horas = fecha.getHours()
-    var minutos = fecha.getMinutes()
-    var segundos = fecha.getSeconds()
-    var horaActual = numeral(horas).format('00') + ":" + numeral(minutos).format('00') + ":" + numeral(segundos).format('00');
-    return horaActual;
-};
 
 //---------------PINTA LOS CAMBIOS INGRESADOS EN UN VECTOR DE NÚMERO DE OFERTA-------------------------------------------------------------------
 function pintarCambios(cambios) {
-    var arregloOfertas = leerTabla();
-    var ofertasLocalStorage = JSON.parse(localStorage.getItem(subastaLocalSto));
+
+    ofertasLocalStorage = leerLocalStorage();
+    
+    var ofertas = leerTabla();
+
     for (var i = 0; i < cambios.length; i++) {
+
+        var volumenNew = 0;
+        var precioNew = 0;
+        var volumenOld = 0;
+        var precioOld = 0;
+
+        if (ofertas[cambios[i] - 1]) {
+            volumenNew = ofertas[cambios[i] - 1].versiones[0].volumen;
+            precioNew = ofertas[cambios[i] - 1].versiones[0].precio;
+        } else {
+            volumenNew = null
+            precioNew = null
+        };
+
         if (ofertasLocalStorage[cambios[i] - 1]) {
-            if ((ofertasLocalStorage[cambios[i] - 1].versiones[0].volumen != arregloOfertas[cambios[i] - 1].versiones[0].volumen) && (ofertasLocalStorage[cambios[i] - 1].versiones[0].precio != arregloOfertas[cambios[i] - 1].versiones[0].precio)) {
+            volumenOld = ofertasLocalStorage[cambios[i] - 1].versiones[0].volumen;
+            precioOld = ofertasLocalStorage[cambios[i] - 1].versiones[0].precio;
+        } else {
+            volumenOld = null
+            precioOld = null
+        };
+
+        if (volumenOld) {
+            if (volumenOld != volumenNew && precioOld != precioNew) {
                 resaltarOferta(cambios[i], 40) //NARANJA
                 console.log('Oferta ' + cambios[i] + ' cambió el volumen y el precio')
             } else {
-                if (ofertasLocalStorage[cambios[i] - 1].versiones[0].volumen != arregloOfertas[cambios[i] - 1].versiones[0].volumen) {
+                if (volumenOld != volumenNew) {
                     resaltarOferta(cambios[i], 60) //AMARILLO
                     console.log('Oferta ' + cambios[i] + ' cambió el volumen')
                 } else {
-                    if (ofertasLocalStorage[cambios[i] - 1].versiones[0].precio != arregloOfertas[cambios[i] - 1].versiones[0].precio) {
+                    if (precioOld != precioNew) {
                         resaltarOferta(cambios[i], 180) //AZUL
                         console.log('Oferta ' + cambios[i] + ' cambió el precio')
                     } else {
@@ -284,8 +312,7 @@ function pintarCambios(cambios) {
     };
     console.log('Se pintaron los cambios');
     actualizarOfertas();
-    // guardarOfertas(leerTabla());
-    // actualizarResumen();
+    actualizarResumen();
 };
 
 //-----------------CALCULA EL TOTAL DE VOLUMEN POR CUENCA-----------------------------------------------------------------
@@ -357,6 +384,7 @@ function ocultarMenu() {
     };
 };
 
+//-----------------FUNCION QUE DEVUELVE SI UN ELEMENTO TIENE DETERMINADA CLASE------------------------------------
 function hasClass(element, className) {
     return (' ' + element.className + ' ').indexOf(' ' + className + ' ') > -1;
 };
