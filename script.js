@@ -46,12 +46,14 @@ var subastaLocalSto = 'S_CAMMESA-' + window.location.href.split('=')[1]
 //-------------------GUARDAR OFERTAS EN LOCAL STORAGE---------------------------------------------------------------
 function guardarOfertas(array) {
     localStorage.setItem(subastaLocalSto, JSON.stringify(array));
+    console.log('Se guardaron las ofertas en el Local Storage');
 };
 
 //------------LEE LAS OFERTAS GUARDADAS EN EL LOCAL STORAGE------------------------------------
 function leerLocalStorage() {
-    ofertasLocalStorage = JSON.parse(localStorage.getItem(subastaLocalSto));
-    return ofertasLocalStorage;
+    console.log('Se lee el Local Storage');
+    return JSON.parse(localStorage.getItem(subastaLocalSto));
+    // return ofertasLocalStorage;
 };
 //------------CODIGO EJECUTADO----------------------------------------------------------------
 // var ofertas = leerTabla();
@@ -59,7 +61,7 @@ function leerLocalStorage() {
 // localStorage.clear();
 // leerTabla();
 iniciarResumen();
-// guardarOfertas(ofertas);
+guardarOfertas(leerTabla());
 var mostrarResumen = document.querySelector('.menu-icon');
 mostrarResumen.addEventListener("click", ocultarMenu, false);
 //------------EJECUTA LA ACTUALIZACIÓN DEL RESUMEN CADA UN TIEMPO DEFINIDO---------------------
@@ -74,29 +76,56 @@ mostrarResumen.addEventListener("click", ocultarMenu, false);
 //--------------ACTUALIZA OFERTAS EN MEMORIA LOCAL EN CASO DE HABER DETECTADO CAMBIOS-------------------------------------------------------
 function actualizarOfertas() {
     var ofertas = leerTabla();
-    var ofertasLocalStorageNew = JSON.parse(localStorage.getItem(subastaLocalSto));
-    var ofertasLocalStorageOld = JSON.parse(localStorage.getItem(subastaLocalSto));
+    // var ofertasLocalStorageNew = leerLocalStorage();
+    var ofertasLocalStorageOld = leerLocalStorage();
     // if (ofertas != null && ofertas[0].versiones[0].volumen != null) { console.log('1 ' + ofertas[0].versiones[0].volumen) } else { console.log('1 ' + null) };
     // if (ofertasLocalStorage != null && ofertasLocalStorage[0].versiones[0].volumen != null) { console.log('2 ' + ofertasLocalStorage[0].versiones[0].volumen) } else { console.log('2 ' + null)};
     if (ofertasLocalStorageOld != null) {
         for (var i = 0; i <= ofertas.length; i++) {
-            if (ofertasLocalStorageOld[i] != null) {
-                if (ofertas[i] != null) {
-                    if ((ofertas[i].versiones[0].volumen != ofertasLocalStorageOld[i].versiones[0].volumen) || (ofertas[i].versiones[0].precio != ofertasLocalStorageOld[i].versiones[0].precio)) {
-                        ofertasLocalStorageNew[i].versiones.unshift(ofertas[i].versiones[0]);
-                    };
-                } else if (ofertasLocalStorageOld[i].versiones[0].volumen != null) {
-                    ofertasLocalStorageNew[i].numeroOrden = null;
-                    ofertasLocalStorageNew[i].versiones.unshift({ "hora": new Date(), "volumen": null, "porcentaje": null, "precio": null, "precioGba": null });
-                };
+
+            // var volumenNew = 0;
+            // var precioNew = 0;
+            // var volumenOld = 0;
+            // var precioOld = 0;
+
+            if (ofertas[i]) {
+                var volumenNew = ofertas[i].versiones[0].volumen;
+                var precioNew = ofertas[i].versiones[0].precio;
             } else {
-                ofertasLocalStorageNew[i] = ofertas[i];
+                volumenNew = null
+                precioNew = null
             };
+
+            if (ofertasLocalStorageOld[i]) {
+                var volumenOld = ofertas[i].versiones[0].volumen;
+                var precioOld = ofertas[i].versiones[0].precio;
+            } else {
+                volumenOld = null
+                precioOld = null
+            };
+
+            if (ofertas[i] != null && ofertasLocalStorageOld[i] == null) {
+                console.log(i, true, false);
+                ofertasLocalStorageOld[i] = ofertas[i];
+            } else if (ofertas[i] == null && ofertasLocalStorageOld[i] != null) {
+                console.log(i, false, true);
+                ofertasLocalStorageOld[i].numeroOrden = null;
+                ofertasLocalStorageOld[i].versiones.unshift(new Version(new Date(), null, null, null, null));
+            }else if (ofertas[i] == null && ofertasLocalStorageOld[i] == null) {
+                console.log(i, false, false);
+            // } else if (volumenNew != volumenOld || precioNew != precioOld) {
+            } else if (true) {
+                console.log(i, volumenNew, volumenOld, precioNew, precioOld);
+                // console.log(i, 'verificar cambios');
+                ofertasLocalStorageOld[i].versiones.unshift(ofertas[i].versiones[0]);
+            }
         };
-        //console.log(ofertasLocalStorageOld);
-        //console.log(ofertasLocalStorageNew);
-    } else { ofertasLocalStorageNew = ofertas };
-    guardarOfertas(ofertasLocalStorageNew);
+    } else {
+        ofertasLocalStorageOld = ofertas
+        console.log('Se copiaron las ofertas');
+    };
+    console.log('Se actualizaron las ofertas');
+    guardarOfertas(ofertasLocalStorageOld);
 };
 
 //------------CONVIERTE FECHA/HORA DE TEXTO A FORMATO DATE-----------------------------------
@@ -153,13 +182,26 @@ var observer = new MutationObserver(mutations => {
     // console.log(mutations);
     // console.log(mutations[0].target);
     let listaCambios = [];
-    if (mutations[0].target != 'div#udtGridUpdater') {
-        for (i = 0; i < mutations.length; i++) {
-            var nn = parseInt(mutations[i].addedNodes[0].parentNode.parentNode.cells[2].innerHTML);
-            listaCambios.push(nn);
-            // console.log('Cambió la oferta número ' + nn);
+    let nn = 0
+    // console.log(mutations);
+    for (i = 0; i < mutations.length; i++) {
+        if (mutations[i].target != 'div#udtGridUpdater') {
+            if (mutations[i].addedNodes.length > 0 && mutations[0].removedNodes.length === 0) {
+                nn = parseInt(mutations[i].addedNodes[0].cells[2].innerHTML);
+                console.log("Se agregó oferta", nn);
+                listaCambios.push(nn);
+            } else if (mutations[i].addedNodes.length === 0 && mutations[0].removedNodes.length > 0) {
+                nn = parseInt(mutations[i].removedNodes[0].cells[2].innerHTML);
+                console.log("Se eliminó oferta", nn);
+            } else {
+                for (i = 0; i < mutations.length; i++) {
+                    nn = parseInt(mutations[i].addedNodes[0].parentNode.parentNode.cells[2].innerText);
+                    console.log("Cambió oferta", nn);
+                    listaCambios.push(nn);
+                };
+            }
         };
-        console.log('(' + decirHora() + ')', listaCambios);
+        // console.log('(' + decirHora() + ')', listaCambios, mutations[0]);
         pintarCambios(listaCambios);
         actualizarResumen();
     };
@@ -197,7 +239,7 @@ var observador = new MutationObserver(mutations2 => {
         var tablaOfertas = myTab.firstElementChild;
         observer.observe(tablaOfertas, configObserver);
         pintarCambios(listaCambios);
-        actualizarResumen();
+        // actualizarResumen();
     };
     // console.log('(' + decirHora() + ') ' + listaCambios);
 });
@@ -228,7 +270,7 @@ function pintarCambios(cambios) {
                     console.log('Oferta ' + cambios[i] + ' cambió el volumen')
                 } else {
                     if (ofertasLocalStorage[cambios[i] - 1].versiones[0].precio != arregloOfertas[cambios[i] - 1].versiones[0].precio) {
-                        resaltarOferta(cambios[i], 200) //AZUL
+                        resaltarOferta(cambios[i], 180) //AZUL
                         console.log('Oferta ' + cambios[i] + ' cambió el precio')
                     } else {
                         console.log('Oferta ' + cambios[i] + ' sin cambios')
@@ -240,8 +282,10 @@ function pintarCambios(cambios) {
             console.log('Oferta ' + cambios[i] + ' es nueva')
         };
     };
+    console.log('Se pintaron los cambios');
     actualizarOfertas();
-    // actualizarResumen ();
+    // guardarOfertas(leerTabla());
+    // actualizarResumen();
 };
 
 //-----------------CALCULA EL TOTAL DE VOLUMEN POR CUENCA-----------------------------------------------------------------
@@ -252,7 +296,7 @@ function volumenTotal(cuenca) {
     if (cuenca !== "*") {
         var ofertasFiltradas = arrayOfertas.filter(item => item.mercado === cuenca)
     }
-    return ofertasFiltradas.reduce((total, item) => total + item.versiones[0].volumen, 0)
+    return ofertasFiltradas.reduce((total, item) => total + item.versiones[0].volumen, 0).toLocaleString('es-ES')
 };
 
 //-----------------CALCULA EL NUMERO DE OFERTAS POR CUENCA-----------------------------------------------------------------
@@ -263,7 +307,7 @@ function cantidadOfertas(cuenca) {
     if (cuenca !== "*") {
         var ofertasFiltradas = arrayOfertas.filter(item => (item.mercado === cuenca) && item)
     }
-    return ofertasFiltradas.filter(item => item ).length
+    return ofertasFiltradas.filter(item => item).length
 };
 
 //-----------------CALCULA PRECIO MINIMO POR CUENCA-----------------------------------------------------------------
@@ -274,7 +318,11 @@ function menorPrecio(cuenca) {
         var ofertasFiltradas = arrayOfertas.filter(item => item.mercado === cuenca)
     }
     var precios = ofertasFiltradas.map(item => { return item.versiones[0].precio }).filter(item => item !== null)
-    return Math.min(...precios)
+    if (precios.length > 0) {
+        return Math.min(...precios)
+    } else {
+        return '-'
+    }
 };
 
 //-----------------CALCULA PORCENTAJE CORRESPONDIENTE AL PRECIO MINIMO POR CUENCA-----------------------------------------------------------------
@@ -282,8 +330,12 @@ function menorPorcentajePrecio(cuenca) {
     var arrayOfertas = leerTabla();
     var ofertasCuenca = arrayOfertas.filter(item => item.mercado === cuenca)
     var precios = ofertasCuenca.map(item => { return item.versiones[0].precio })
-    var indice = precios.indexOf(menorPrecio(cuenca));
-    return ofertasCuenca[indice].versiones[0].porcentaje;
+    if (precios.length > 0) {
+        var indice = precios.indexOf(menorPrecio(cuenca));
+        return ofertasCuenca[indice].versiones[0].porcentaje.toLocaleString('es-ES', { minimumFractionDigits: 2 }) + ' %'
+    } else {
+        return '-'
+    }
 };
 
 //-----------------OCULTA/MUESTRA EL MENU RESUMEN-----------------------------------------------------------------
@@ -326,12 +378,12 @@ function iniciarResumen() {
     var tdfC = cantidadOfertas('TIERRA DEL FUEGO');
     var totC = cantidadOfertas('*');
 
-    var noaP = menorPrecio('NOROESTE');
-    var nqnP = menorPrecio('NEUQUEN');
-    var chuP = menorPrecio('CHUBUT');
-    var sczP = menorPrecio('SANTA CRUZ');
-    var tdfP = menorPrecio('TIERRA DEL FUEGO');
-    var totP = menorPrecio('*');
+    var noaP = menorPrecio('NOROESTE').toLocaleString('es-ES', { minimumFractionDigits: 4 });
+    var nqnP = menorPrecio('NEUQUEN').toLocaleString('es-ES', { minimumFractionDigits: 4 });
+    var chuP = menorPrecio('CHUBUT').toLocaleString('es-ES', { minimumFractionDigits: 4 });
+    var sczP = menorPrecio('SANTA CRUZ').toLocaleString('es-ES', { minimumFractionDigits: 4 });
+    var tdfP = menorPrecio('TIERRA DEL FUEGO').toLocaleString('es-ES', { minimumFractionDigits: 4 });
+    var totP = menorPrecio('*').toLocaleString('es-ES', { minimumFractionDigits: 4 });
 
     var noaPP = menorPorcentajePrecio('NOROESTE');
     var nqnPP = menorPorcentajePrecio('NEUQUEN');
@@ -358,34 +410,34 @@ function iniciarResumen() {
                 <tr>
                     <td>NOA</td>
                     <td id="noaC">(${noaC})</td>
-                    <td id="noaV">${noaV.toLocaleString('de-ES')}</td>
+                    <td id="noaV">${noaV}</td>
                 </tr>
                 <tr>
                     <td>NQN</td>
                     <td id="nqnC">(${nqnC})</td>
-                    <td id="nqnV">${nqnV.toLocaleString('de-ES')}</td>
+                    <td id="nqnV">${nqnV}</td>
                 </tr>
                 <tr>
                     <td>CHU</td>
                     <td id="chuC">(${chuC})</td>
-                    <td id="chuV">${chuV.toLocaleString('de-ES')}</td>
+                    <td id="chuV">${chuV}</td>
                 </tr>
                 <tr>
                     <td>SCZ</td>
                     <td id="sczC">(${sczC})</td>
-                    <td id="sczV">${sczV.toLocaleString('de-ES')}</td>
+                    <td id="sczV">${sczV}</td>
                 </tr>
                 <tr>
                     <td>TDF</td>
                     <td id="tdfC">(${tdfC})</td>
-                    <td id="tdfV">${tdfV.toLocaleString('de-ES')}</td>
+                    <td id="tdfV">${tdfV}</td>
                 </tr>
             </tbody>
             <tfoot>
                 <tr>
                     <th>TOTAL</th>
                     <th id="totC">(${totC})</th>
-                    <th id="totV">${totV.toLocaleString('de-ES')}</th>
+                    <th id="totV">${totV}</th>
                 </tr>
             </tfoot>
         </table>
@@ -402,35 +454,35 @@ function iniciarResumen() {
             <tbody>
                 <tr>
                     <td>NOA</td>
-                    <td id="noaPP">${noaPP.toLocaleString('de-ES', { minimumFractionDigits: 2 })} %</td>
-                    <td id="noaP">${noaP.toLocaleString('de-ES', { minimumFractionDigits: 4 })}</td>
+                    <td id="noaPP">${noaPP}</td>
+                    <td id="noaP">${noaP}</td>
                 </tr>
                 <tr>
                     <td>NQN</td>
-                    <td id="nqnPP">${nqnPP.toLocaleString('de-ES', { minimumFractionDigits: 2 })} %</td>
-                    <td id="nqnP">${nqnP.toLocaleString('de-ES', { minimumFractionDigits: 4 })}</td>
+                    <td id="nqnPP">${nqnPP}</td>
+                    <td id="nqnP">${nqnP}</td>
                 </tr>
                 <tr>
                     <td>CHU</td>
-                    <td id="chuPP">${chuPP.toLocaleString('de-ES', { minimumFractionDigits: 2 })} %</td>
-                    <td id="chuP">${chuP.toLocaleString('de-ES', { minimumFractionDigits: 4 })}</td>
+                    <td id="chuPP">${chuPP}</td>
+                    <td id="chuP">${chuP}</td>
                 </tr>
                 <tr>
                     <td>SCZ</td>
-                    <td id="sczPP">${sczPP.toLocaleString('de-ES', { minimumFractionDigits: 2 })} %</td>
-                    <td id="sczP">${sczP.toLocaleString('de-ES', { minimumFractionDigits: 4 })}</td>
+                    <td id="sczPP">${sczPP}</td>
+                    <td id="sczP">${sczP}</td>
                 </tr>
                 <tr>
                     <td>TDF</td>
-                    <td id="tdfPP">${tdfPP.toLocaleString('de-ES', { minimumFractionDigits: 2 })} %</td>
-                    <td id="tdfP">${tdfP.toLocaleString('de-ES', { minimumFractionDigits: 4 })}</td>
+                    <td id="tdfPP">${tdfPP}</td>
+                    <td id="tdfP">${tdfP}</td>
                 </tr>
             </tbody>
             <tfoot>
                 <tr>
                     <th>TOTAL</th>
                     <th></th>
-                    <th id="totP" colspan="2">${totP.toLocaleString('de-ES', { minimumFractionDigits: 4 })}</th>
+                    <th id="totP" colspan="2">${totP}</th>
                 </tr>
             </tfoot>
         </table>
@@ -458,12 +510,12 @@ function actualizarResumen() {
     var volTdf = document.getElementById('tdfV');
     var volTot = document.getElementById('totV');
 
-    volNoa.textContent = volumenTotal('NOROESTE').toLocaleString('de-ES');
-    volNqn.textContent = volumenTotal('NEUQUEN').toLocaleString('de-ES');
-    volChu.textContent = volumenTotal('CHUBUT').toLocaleString('de-ES');
-    volScz.textContent = volumenTotal('SANTA CRUZ').toLocaleString('de-ES');
-    volTdf.textContent = volumenTotal('TIERRA DEL FUEGO').toLocaleString('de-ES');
-    volTot.textContent = volumenTotal('*').toLocaleString('de-ES');
+    volNoa.textContent = volumenTotal('NOROESTE');
+    volNqn.textContent = volumenTotal('NEUQUEN');
+    volChu.textContent = volumenTotal('CHUBUT');
+    volScz.textContent = volumenTotal('SANTA CRUZ');
+    volTdf.textContent = volumenTotal('TIERRA DEL FUEGO');
+    volTot.textContent = volumenTotal('*');
 
     //CANTIDAD DE OFERTAS
     var volNoa = document.getElementById('noaC');
@@ -488,12 +540,12 @@ function actualizarResumen() {
     var pTdf = document.getElementById('tdfP')
     var pTot = document.getElementById('totP')
 
-    pNoa.textContent = menorPrecio('NOROESTE').toLocaleString('de-ES', { minimumFractionDigits: 4 })
-    pNqn.textContent = menorPrecio('NEUQUEN').toLocaleString('de-ES', { minimumFractionDigits: 4 })
-    pChu.textContent = menorPrecio('CHUBUT').toLocaleString('de-ES', { minimumFractionDigits: 4 })
-    pScz.textContent = menorPrecio('SANTA CRUZ').toLocaleString('de-ES', { minimumFractionDigits: 4 })
-    pTdf.textContent = menorPrecio('TIERRA DEL FUEGO').toLocaleString('de-ES', { minimumFractionDigits: 4 })
-    pTot.textContent = menorPrecio('*').toLocaleString('de-ES', { minimumFractionDigits: 4 })
+    pNoa.textContent = menorPrecio('NOROESTE').toLocaleString('es-ES', { minimumFractionDigits: 4 })
+    pNqn.textContent = menorPrecio('NEUQUEN').toLocaleString('es-ES', { minimumFractionDigits: 4 })
+    pChu.textContent = menorPrecio('CHUBUT').toLocaleString('es-ES', { minimumFractionDigits: 4 })
+    pScz.textContent = menorPrecio('SANTA CRUZ').toLocaleString('es-ES', { minimumFractionDigits: 4 })
+    pTdf.textContent = menorPrecio('TIERRA DEL FUEGO').toLocaleString('es-ES', { minimumFractionDigits: 4 })
+    pTot.textContent = menorPrecio('*').toLocaleString('es-ES', { minimumFractionDigits: 4 })
 
     //PORCENTAJES
     var ppNoa = document.getElementById('noaPP')
@@ -502,11 +554,11 @@ function actualizarResumen() {
     var ppScz = document.getElementById('sczPP')
     var ppTdf = document.getElementById('tdfPP')
 
-    ppNoa.textContent = menorPorcentajePrecio('NOROESTE').toLocaleString('de-ES', { minimumFractionDigits: 2 }) + ' %'
-    ppNqn.textContent = menorPorcentajePrecio('NEUQUEN').toLocaleString('de-ES', { minimumFractionDigits: 2 }) + ' %'
-    ppChu.textContent = menorPorcentajePrecio('CHUBUT').toLocaleString('de-ES', { minimumFractionDigits: 2 }) + ' %'
-    ppScz.textContent = menorPorcentajePrecio('SANTA CRUZ').toLocaleString('de-ES', { minimumFractionDigits: 2 }) + ' %'
-    ppTdf.textContent = menorPorcentajePrecio('TIERRA DEL FUEGO').toLocaleString('de-ES', { minimumFractionDigits: 2 }) + ' %'
+    ppNoa.textContent = menorPorcentajePrecio('NOROESTE')
+    ppNqn.textContent = menorPorcentajePrecio('NEUQUEN')
+    ppChu.textContent = menorPorcentajePrecio('CHUBUT')
+    ppScz.textContent = menorPorcentajePrecio('SANTA CRUZ')
+    ppTdf.textContent = menorPorcentajePrecio('TIERRA DEL FUEGO')
 };
 
 

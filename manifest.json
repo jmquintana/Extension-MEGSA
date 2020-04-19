@@ -1,7 +1,7 @@
 {
     "manifest_version":2,
     "name": "Subasta MEGSA",
-    "version": "2.5.0",
+    "version": "0.8.0",
 	"description": "Agrega un tablero resumen con datos útiles de las Subastas de CAMMESA en MEGSA.",
     "icons": {
         "128": "icons/128.png",
