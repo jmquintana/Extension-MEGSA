@@ -15,7 +15,6 @@ function Version(hora, volumen, porcentaje, precio, precioGba) {
     this.precio = precio;
     this.precioGba = precioGba;
 }
-
 //----------------LECTURA DE LAS OFERTAS EN PANTALLA--------------------------------------------------------
 function leerTabla() {
     myTab = document.querySelector("#dgOfertaVenta"); //Hacer referencia a la tabla contenedora de las ofertas
@@ -372,12 +371,12 @@ function ocultarMenu() {
     // menu.classList.add('animated', 'bounceOutLeft');
 
     if (menu.classList.contains('show')) {
-        console.log('se ocultó');
+        console.log('se ocultó el resumen');
         menu.classList.replace('show', 'noshow');
         menu.classList.replace('fadeInLeft', 'fadeOutLeft');
         menuBtn.innerText = 'ver resumen';
     } else {
-        console.log('se mostró');
+        console.log('se mostró el resumen');
         menu.classList.replace('noshow', 'show');
         menu.classList.replace('fadeOutLeft', 'fadeInLeft');
         menuBtn.innerText = 'ocultar resumen';
@@ -420,7 +419,8 @@ function iniciarResumen() {
     var tdfPP = menorPorcentajePrecio('TIERRA DEL FUEGO');
 
     // <h2 class="logo">Volúmenes</h2>
-    var encabezado = document.querySelector("#megNavegador_uwmMenu")
+    var encabezado = document.querySelector("#megNavegador_uwmMenu");
+    if (encabezado){
     encabezado.outerHTML +=
         `
     <span class="menu-icon">ocultar resumen</span>
@@ -522,9 +522,7 @@ function iniciarResumen() {
 </div>
 </div>
 `
-
-
-
+    }
     //style="display:none"
 };
 
@@ -561,32 +559,32 @@ function actualizarResumen() {
     volTot.textContent = '(' + cantidadOfertas('*') + ')';
 
     //PRECIOS
-    var pNoa = document.getElementById('noaP')
-    var pNqn = document.getElementById('nqnP')
-    var pChu = document.getElementById('chuP')
-    var pScz = document.getElementById('sczP')
-    var pTdf = document.getElementById('tdfP')
-    var pTot = document.getElementById('totP')
+    var pNoa = document.getElementById('noaP');
+    var pNqn = document.getElementById('nqnP');
+    var pChu = document.getElementById('chuP');
+    var pScz = document.getElementById('sczP');
+    var pTdf = document.getElementById('tdfP');
+    var pTot = document.getElementById('totP');
 
-    pNoa.textContent = menorPrecio('NOROESTE').toLocaleString('es-ES', { minimumFractionDigits: 4 })
-    pNqn.textContent = menorPrecio('NEUQUEN').toLocaleString('es-ES', { minimumFractionDigits: 4 })
-    pChu.textContent = menorPrecio('CHUBUT').toLocaleString('es-ES', { minimumFractionDigits: 4 })
-    pScz.textContent = menorPrecio('SANTA CRUZ').toLocaleString('es-ES', { minimumFractionDigits: 4 })
-    pTdf.textContent = menorPrecio('TIERRA DEL FUEGO').toLocaleString('es-ES', { minimumFractionDigits: 4 })
-    pTot.textContent = menorPrecio('*').toLocaleString('es-ES', { minimumFractionDigits: 4 })
+    pNoa.textContent = menorPrecio('NOROESTE').toLocaleString('es-ES', { minimumFractionDigits: 4 });
+    pNqn.textContent = menorPrecio('NEUQUEN').toLocaleString('es-ES', { minimumFractionDigits: 4 });
+    pChu.textContent = menorPrecio('CHUBUT').toLocaleString('es-ES', { minimumFractionDigits: 4 });
+    pScz.textContent = menorPrecio('SANTA CRUZ').toLocaleString('es-ES', { minimumFractionDigits: 4 });
+    pTdf.textContent = menorPrecio('TIERRA DEL FUEGO').toLocaleString('es-ES', { minimumFractionDigits: 4 });
+    pTot.textContent = menorPrecio('*').toLocaleString('es-ES', { minimumFractionDigits: 4 });
 
     //PORCENTAJES
-    var ppNoa = document.getElementById('noaPP')
-    var ppNqn = document.getElementById('nqnPP')
-    var ppChu = document.getElementById('chuPP')
-    var ppScz = document.getElementById('sczPP')
-    var ppTdf = document.getElementById('tdfPP')
+    var ppNoa = document.getElementById('noaPP');
+    var ppNqn = document.getElementById('nqnPP');
+    var ppChu = document.getElementById('chuPP');
+    var ppScz = document.getElementById('sczPP');
+    var ppTdf = document.getElementById('tdfPP');
 
-    ppNoa.textContent = menorPorcentajePrecio('NOROESTE')
-    ppNqn.textContent = menorPorcentajePrecio('NEUQUEN')
-    ppChu.textContent = menorPorcentajePrecio('CHUBUT')
-    ppScz.textContent = menorPorcentajePrecio('SANTA CRUZ')
-    ppTdf.textContent = menorPorcentajePrecio('TIERRA DEL FUEGO')
+    ppNoa.textContent = menorPorcentajePrecio('NOROESTE');
+    ppNqn.textContent = menorPorcentajePrecio('NEUQUEN');
+    ppChu.textContent = menorPorcentajePrecio('CHUBUT');
+    ppScz.textContent = menorPorcentajePrecio('SANTA CRUZ');
+    ppTdf.textContent = menorPorcentajePrecio('TIERRA DEL FUEGO');
 };
 
 
@@ -605,7 +603,7 @@ function actualizarResumen() {
 //     }
 // })()
 // });
-var jsonBtn = document.querySelector('.link-to-download-json')
+var jsonBtn = document.querySelector('.link-to-download-json');
 jsonBtn.onclick = function () {
     //-------DOWNLOAD LOCAL STORAGE--------------------------------------------------------------------------
     //Hacer funcion acá, para que siempre se esté bajando el local storage de cada momento.---------------------------------------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -619,7 +617,7 @@ jsonBtn.onclick = function () {
     // jsonLink.click();
 };
 
-var csvBtn = document.querySelector('.link-to-download-csv')
+var csvBtn = document.querySelector('.link-to-download-csv');
 csvBtn.onclick = function () {
     //-------EXPORTAR TABLA A CSV--------------------------------------------------------------------------
     function exportTableToCSV() {
