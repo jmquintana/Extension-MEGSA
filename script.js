@@ -1,38 +1,53 @@
-var myTab = document.querySelector("#dgOfertaVenta"); //Hacer referencia a la tabla contenedora de las ofertas
+let myTab = document.querySelector("#dgOfertaVenta"); //Hacer referencia a la tabla contenedora de las ofertas
 
 //----------------CONSTRUCTOR DE OFERTAS--------------------------------------------------------
-function Oferta(numeroOferta, numeroOrden, mercado, versiones) {
-    this.numeroOferta = numeroOferta;
-    this.numeroOrden = numeroOrden;
-    this.mercado = mercado;
-    this.versiones = versiones;
+class Oferta {
+    constructor(numeroOferta, numeroOrden, mercado, versiones) {
+        this.numeroOferta = numeroOferta;
+        this.numeroOrden = numeroOrden;
+        this.mercado = mercado;
+        this.versiones = versiones;
+    }
 }
 //----------------CONSTRUCTOR DE VERSIONES--------------------------------------------------------
-function Version(hora, volumen, porcentaje, precio, precioGba) {
-    this.hora = hora;
-    this.volumen = volumen;
-    this.porcentaje = porcentaje;
-    this.precio = precio;
-    this.precioGba = precioGba;
+class Version {
+    constructor(hora, volumen, porcentaje, precio, precioGba) {
+        this.hora = hora;
+        this.volumen = volumen;
+        this.porcentaje = porcentaje;
+        this.precio = precio;
+        this.precioGba = precioGba;
+    }
 }
+
+let colOferta = buscarColumna("Nro.Oferta");
+let colMercado = buscarColumna("Mercado");
+let colFecha = buscarColumna("Fecha y horario");
+let colVolumen = buscarColumna("Vol.Ofertado (m³)");
+let colPrecioPorcentaje = buscarColumna("Precio (%)");
+let colPrecio = buscarColumna("Precio (USD/MMBTU)");
+let colPrecioGBA = buscarColumna("Precio GBA (USD/MMBTU)");
+
 //----------------LECTURA DE LAS OFERTAS EN PANTALLA--------------------------------------------------------
-function leerTabla() {
-    myTab = document.querySelector("#dgOfertaVenta"); //Hacer referencia a la tabla contenedora de las ofertas
-    var ofertas = [];
-    if (myTab != null) {
+
+function leerTabla(myTab) {
+    // myTab = document.querySelector("#dgOfertaVenta"); //Hacer referencia a la tabla contenedora de las ofertas
+
+    let ofertas = [];
+    if (myTab) {
         for (i = 1; i < myTab.rows.length; i++) {
-            var oferta = new Oferta(
-                parseInt(myTab.firstElementChild.children[i].children[buscarColumna("Nro.Oferta")].innerText),
+            let oferta = new Oferta(
+                parseInt(myTab.firstElementChild.children[i].children[colOferta].innerText),
                 i,
-                myTab.firstElementChild.children[i].children[buscarColumna("Mercado")].innerText,
+                myTab.firstElementChild.children[i].children[colMercado].innerText,
                 [new Version(
-                    dateToNumber(myTab.firstElementChild.children[i].children[buscarColumna("Fecha y horario")].innerText),
-                    parseInt(myTab.firstElementChild.children[i].children[buscarColumna("Vol.Ofertado (m³)")].innerText.split('.').join('')),
-                    parseFloat(myTab.firstElementChild.children[i].children[buscarColumna("Precio (%)")].innerText.split(',').join('.')),
-                    parseFloat(myTab.firstElementChild.children[i].children[buscarColumna("Precio (USD/MMBTU)")].innerText.split(',').join('.')),
-                    parseFloat(myTab.firstElementChild.children[i].children[buscarColumna("Precio GBA (USD/MMBTU)")].innerText.split(',').join('.'))
+                    dateToNumber(myTab.firstElementChild.children[i].children[colFecha].innerText),
+                    parseInt(myTab.firstElementChild.children[i].children[colVolumen].innerText.split('.').join('')),
+                    parseFloat(myTab.firstElementChild.children[i].children[colPrecioPorcentaje].innerText.split(',').join('.')),
+                    parseFloat(myTab.firstElementChild.children[i].children[colPrecio].innerText.split(',').join('.')),
+                    parseFloat(myTab.firstElementChild.children[i].children[colPrecioGBA].innerText.split(',').join('.'))
                 )]
-            )
+            );
             var n = oferta.numeroOferta
             ofertas[n - 1] = oferta;
         };
@@ -62,7 +77,7 @@ iniciarResumen();
 var ofertasLocalStorage = [];
 
 if (!leerLocalStorage()) {
-    guardarOfertas(leerTabla());
+    guardarOfertas(leerTabla(myTab));
 };
 
 // guardarOfertas(leerTabla());
@@ -91,8 +106,8 @@ function decirHora() {
 //--------------ACTUALIZA OFERTAS EN MEMORIA LOCAL EN CASO DE HABER DETECTADO CAMBIOS-------------------------------------------------------
 function actualizarOfertas() {
 
-    var ofertas = leerTabla();
-    // var ofertasLocalStorage = leerLocalStorage();
+    var ofertas = leerTabla(myTab);
+    var ofertasLocalStorage = leerLocalStorage();
 
     if (ofertasLocalStorage != null) {
         for (var i = 0; i <= ofertas.length; i++) {
@@ -124,10 +139,10 @@ function actualizarOfertas() {
             } else if (ofertas[i] == null && ofertasLocalStorage[i] != null) {
                 // console.log(i, false, true);
                 ofertasLocalStorage[i].numeroOrden = null;
-                if (volumenOld != null){
+                if (volumenOld != null) {
                     ofertasLocalStorage[i].versiones.unshift(new Version(new Date(), null, null, null, null));
                 }
-            }else if (ofertas[i] == null && ofertasLocalStorage[i] == null) {
+            } else if (ofertas[i] == null && ofertasLocalStorage[i] == null) {
                 // console.log(i, false, false);
             } else if (volumenNew != volumenOld || precioNew != precioOld) {
                 // console.log(i, volumenNew, volumenOld, precioNew, precioOld);
@@ -166,7 +181,7 @@ function buscarColumna(columna) {
 function resaltarOferta(n, c) {
     //Color row background in HSL space (easier to manipulate fading)
     var filaOferta = $('.dataGrid').children(0).children(0);
-    let ofertas = leerTabla();
+    let ofertas = leerTabla(myTab);
     var x = ofertas[n - 1].numeroOrden
     filaOferta.eq(x).css('backgroundColor', 'hsl(' + c + ', 100%, 50%)');
 
@@ -233,7 +248,7 @@ var configObservador = {
 var observador = new MutationObserver(mutations2 => {
     let listaCambios = [];
     if (mutations2[0].target.children[1].parentNode.style.cssText == 'display: none;') {
-        let arregloOfertas = leerTabla();
+        let arregloOfertas = leerTabla(myTab);
         // ofertasLocalStorage = leerLocalStorage();
         for (var i = 0; i < arregloOfertas.length; i++) {
             if (ofertasLocalStorage[i] && ofertasLocalStorage[i].versiones && arregloOfertas[i]) {
@@ -261,8 +276,8 @@ observador.observe(procesando, configObservador);
 function pintarCambios(cambios) {
 
     ofertasLocalStorage = leerLocalStorage();
-    
-    var ofertas = leerTabla();
+
+    var ofertas = leerTabla(myTab);
 
     for (var i = 0; i < cambios.length; i++) {
 
@@ -316,7 +331,7 @@ function pintarCambios(cambios) {
 
 //-----------------CALCULA EL TOTAL DE VOLUMEN POR CUENCA-----------------------------------------------------------------
 function volumenTotal(cuenca) {
-    var arrayOfertas = leerTabla();
+    var arrayOfertas = leerTabla(myTab);
     // console.log(arrayOfertas);
     var ofertasFiltradas = arrayOfertas;
     if (cuenca !== "*") {
@@ -327,7 +342,7 @@ function volumenTotal(cuenca) {
 
 //-----------------CALCULA EL NUMERO DE OFERTAS POR CUENCA-----------------------------------------------------------------
 function cantidadOfertas(cuenca) {
-    var arrayOfertas = leerTabla();
+    var arrayOfertas = leerTabla(myTab);
     // console.log(arrayOfertas);
     var ofertasFiltradas = arrayOfertas;
     if (cuenca !== "*") {
@@ -338,7 +353,7 @@ function cantidadOfertas(cuenca) {
 
 //-----------------CALCULA PRECIO MINIMO POR CUENCA-----------------------------------------------------------------
 function menorPrecio(cuenca) {
-    var arrayOfertas = leerTabla();
+    var arrayOfertas = leerTabla(myTab);
     var ofertasFiltradas = arrayOfertas;
     if (cuenca !== "*") {
         var ofertasFiltradas = arrayOfertas.filter(item => item.mercado === cuenca)
@@ -353,12 +368,12 @@ function menorPrecio(cuenca) {
 
 //-----------------CALCULA PORCENTAJE CORRESPONDIENTE AL PRECIO MINIMO POR CUENCA-----------------------------------------------------------------
 function menorPorcentajePrecio(cuenca) {
-    var arrayOfertas = leerTabla();
+    var arrayOfertas = leerTabla(myTab);
     var ofertasCuenca = arrayOfertas.filter(item => item.mercado === cuenca)
     var precios = ofertasCuenca.map(item => { return item.versiones[0].precio })
     if (precios.length > 0) {
         var indice = precios.indexOf(menorPrecio(cuenca));
-        return ofertasCuenca[indice].versiones[0].porcentaje.toLocaleString('es-ES', { minimumFractionDigits: 2 }) + ' %'
+        return ofertasCuenca[indice].versiones[0].porcentaje.toLocaleString('es-ES', { minimumFractionDigits: 2 }) + '%'
     } else {
         return '-'
     }
@@ -367,7 +382,7 @@ function menorPorcentajePrecio(cuenca) {
 //-----------------OCULTA/MUESTRA EL MENU RESUMEN-----------------------------------------------------------------
 function ocultarMenu() {
     var menuBtn = document.querySelector('.menu-icon'),
-        menu = document.querySelector("div#resumenVolumen");
+        menu = document.querySelector("div.logo-nav-container");
     // menu.classList.add('animated', 'bounceOutLeft');
 
     if (menu.classList.contains('show')) {
@@ -420,101 +435,101 @@ function iniciarResumen() {
 
     // <h2 class="logo">Volúmenes</h2>
     var encabezado = document.querySelector("#megNavegador_uwmMenu");
-    if (encabezado){
-    encabezado.outerHTML +=
-        `
+    if (encabezado) {
+        encabezado.outerHTML +=
+            `
     <span class="menu-icon">ocultar resumen</span>
-    <div class="logo-nav-container">
-    <div id="resumenVolumen" class="show animated fadeInLeft faster">
-    <div>
-        <table class="res volumen">
-            <thead>
-                <tr>
-                    <th colspan="2">Mercado</th>
-                    <th >Volumen</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>NOA</td>
-                    <td id="noaC">(${noaC})</td>
-                    <td id="noaV">${noaV}</td>
-                </tr>
-                <tr>
-                    <td>NQN</td>
-                    <td id="nqnC">(${nqnC})</td>
-                    <td id="nqnV">${nqnV}</td>
-                </tr>
-                <tr>
-                    <td>CHU</td>
-                    <td id="chuC">(${chuC})</td>
-                    <td id="chuV">${chuV}</td>
-                </tr>
-                <tr>
-                    <td>SCZ</td>
-                    <td id="sczC">(${sczC})</td>
-                    <td id="sczV">${sczV}</td>
-                </tr>
-                <tr>
-                    <td>TDF</td>
-                    <td id="tdfC">(${tdfC})</td>
-                    <td id="tdfV">${tdfV}</td>
-                </tr>
-            </tbody>
-            <tfoot>
-                <tr>
-                    <th>TOTAL</th>
-                    <th id="totC">(${totC})</th>
-                    <th id="totV">${totV}</th>
-                </tr>
-            </tfoot>
-        </table>
-    </div>
-    <h2 class="logo precios"></h2>
-    <div>
-        <table class="res precio">
-            <thead>
-                <tr>
-                    <th>Mercado</th>
-                    <th colspan="2">Precio Mínimo</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>NOA</td>
-                    <td id="noaPP">${noaPP}</td>
-                    <td id="noaP">${noaP}</td>
-                </tr>
-                <tr>
-                    <td>NQN</td>
-                    <td id="nqnPP">${nqnPP}</td>
-                    <td id="nqnP">${nqnP}</td>
-                </tr>
-                <tr>
-                    <td>CHU</td>
-                    <td id="chuPP">${chuPP}</td>
-                    <td id="chuP">${chuP}</td>
-                </tr>
-                <tr>
-                    <td>SCZ</td>
-                    <td id="sczPP">${sczPP}</td>
-                    <td id="sczP">${sczP}</td>
-                </tr>
-                <tr>
-                    <td>TDF</td>
-                    <td id="tdfPP">${tdfPP}</td>
-                    <td id="tdfP">${tdfP}</td>
-                </tr>
-            </tbody>
-            <tfoot>
-                <tr>
-                    <th>TOTAL</th>
-                    <th></th>
-                    <th id="totP" colspan="2">${totP}</th>
-                </tr>
-            </tfoot>
-        </table>
-    </div>
+    <div class="logo-nav-container show animated fadeInLeft faster">
+        <div id="resumenVolumen">
+            <div>
+                <table class="res volumen">
+                    <thead>
+                        <tr>
+                            <th colspan="2">Mercado</th>
+                            <th >Volumen</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>NOA</td>
+                            <td id="noaC">(${noaC})</td>
+                            <td id="noaV">${noaV}</td>
+                        </tr>
+                        <tr>
+                            <td>NQN</td>
+                            <td id="nqnC">(${nqnC})</td>
+                            <td id="nqnV">${nqnV}</td>
+                        </tr>
+                        <tr>
+                            <td>CHU</td>
+                            <td id="chuC">(${chuC})</td>
+                            <td id="chuV">${chuV}</td>
+                        </tr>
+                        <tr>
+                            <td>SCZ</td>
+                            <td id="sczC">(${sczC})</td>
+                            <td id="sczV">${sczV}</td>
+                        </tr>
+                        <tr>
+                            <td>TDF</td>
+                            <td id="tdfC">(${tdfC})</td>
+                            <td id="tdfV">${tdfV}</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th>TOTAL</th>
+                            <th id="totC">(${totC})</th>
+                            <th id="totV">${totV}</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <h2 class="logo precios"></h2>
+        <div>
+            <table class="res precio">
+                <thead>
+                    <tr>
+                        <th>Mercado</th>
+                        <th colspan="2">Precio Mínimo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>NOA</td>
+                        <td id="noaPP">${noaPP}</td>
+                        <td id="noaP">${noaP}</td>
+                    </tr>
+                    <tr>
+                        <td>NQN</td>
+                        <td id="nqnPP">${nqnPP}</td>
+                        <td id="nqnP">${nqnP}</td>
+                    </tr>
+                    <tr>
+                        <td>CHU</td>
+                        <td id="chuPP">${chuPP}</td>
+                        <td id="chuP">${chuP}</td>
+                    </tr>
+                    <tr>
+                        <td>SCZ</td>
+                        <td id="sczPP">${sczPP}</td>
+                        <td id="sczP">${sczP}</td>
+                    </tr>
+                    <tr>
+                        <td>TDF</td>
+                        <td id="tdfPP">${tdfPP}</td>
+                        <td id="tdfP">${tdfP}</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th>TOTAL</th>
+                        <th></th>
+                        <th id="totP" colspan="2">${totP}</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
     <div class="container-btn">
         <a class="link-to-download-json btn" href=jsonUrl style="display:block">JSON</a>
         <a class="link-to-download-csv btn" href=csvUrl>CSV</a>

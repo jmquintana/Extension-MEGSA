@@ -10,7 +10,7 @@ boton.addEventListener("click", function(){
     var options = {
         type:"basic",
         title:"eliminarOferta",
-        message:"Se eliminó la oferta #",
+        message:"Se eliminó la oferta #popup",
         iconUrl:"icons/16.png"
       };
       //notification options set

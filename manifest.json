@@ -1,8 +1,8 @@
 {
-    "manifest_version":2,
+    "manifest_version": 2,
     "name": "Subasta MEGSA",
     "version": "0.8.0",
-	"description": "Agrega un tablero resumen con datos útiles de las Subastas de CAMMESA en MEGSA.",
+    "description": "Agrega un tablero resumen con datos útiles de las Subastas de CAMMESA en MEGSA.",
     "icons": {
         "128": "icons/128.png",
         "48": "icons/48.png",
@@ -17,18 +17,17 @@
         "default_icon": "icons/16.png",
         "default_popup": "popup.html"
     },
-    "content_scripts": [
-        {
-            "css": ["styles.css", "animate.css"],
-            "js": ["numeral.min.js","content.js"],
-            "matches": ["https://negociacion.megsa.ar/Usuario/CAMMESA/GlobalVentaCAMMESA.aspx?ronda*",
-                        "https://negociacion.megsa.ar/Usuario/CAMMESA/GlobalVentaCAMMESA*"]
-        }
-    ],
+    "content_scripts": [{
+        "css": ["styles.css", "animate.css"],
+        "js": ["numeral.min.js", "content.js"],
+        "matches": ["https://negociacion.megsa.ar/Usuario/CAMMESA/GlobalVentaCAMMESA.aspx?ronda*",
+            "https://negociacion.megsa.ar/Usuario/CAMMESA/GlobalVentaCAMMESA*"
+        ]
+    }],
     "permissions": [
         "notifications",
         "storage",
         "downloads"
     ],
-    "web_accessible_resources": ["script.js", "numeral.min.js", "styles.css"]
+    "web_accessible_resources": ["script.js", "numeral.min.js", "styles.css", "toastify.js", "toastify.css"]
 }

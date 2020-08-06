@@ -4,7 +4,7 @@ console.log('Backgroud running');
 var options = {
   type:"basic",
   title:"eliminarOferta",
-  message:"Se eliminó la oferta #",
+  message:"Se eliminó la oferta #background",
   iconUrl:"icons/16.png"
 };
 //notification options set
