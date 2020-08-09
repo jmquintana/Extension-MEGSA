@@ -11,7 +11,7 @@
     margin-top: 10px;
     width: 168px;
     z-index: 10;
-    background-color: rgb(92,110,168);
+    background-color: rgb(92, 110, 168);
     border-radius: 3px;
 }
 
@@ -65,7 +65,8 @@ table.res {
 
 .res tfoot {
     border-top: solid 2px #1f457a;
-    font-size: 1em;;
+    font-size: 1em;
+    ;
 }
 
 .res thead tr th,

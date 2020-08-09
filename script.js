@@ -1,4 +1,4 @@
-let myTab = document.querySelector("#dgOfertaVenta"); //Hacer referencia a la tabla contenedora de las ofertas
+const myTab = document.querySelector("#dgOfertaVenta"); //Hacer referencia a la tabla contenedora de las ofertas
 
 //----------------CONSTRUCTOR DE OFERTAS--------------------------------------------------------
 class Oferta {
@@ -28,8 +28,64 @@ let colPrecioPorcentaje = buscarColumna("Precio (%)");
 let colPrecio = buscarColumna("Precio (USD/MMBTU)");
 let colPrecioGBA = buscarColumna("Precio GBA (USD/MMBTU)");
 
-//----------------LECTURA DE LAS OFERTAS EN PANTALLA--------------------------------------------------------
+//--------------RESALTAR OFERTA CON CLICK-------------------------------
+function agregarListener() {
+    document.querySelectorAll("#dgOfertaVenta > tbody > tr").forEach(item =>
+        item.addEventListener('click', event => {
+            event.preventDefault();
+            if (event.target.parentNode.children) {
+                const oferta = event.target.parentNode.children[colOferta].textContent;
+                if (acumularVolumen(oferta)) {
+                    acumularVolumen(oferta).ofertas.forEach(el => resaltarOferta(el.numeroOferta, 60));
+                    popUp(acumularVolumen(oferta).volumenTotal, acumularVolumen(oferta).ofertas[0].mercado, event);
+                };
+            };
+        })
+    );
+}
+//--------------POP UP VOLUMEN-------------------------------
+const popUp = (volumen, mercado, e) => {
+    const div = document.createElement("div");
+    const prevDiv = document.querySelector('div.popup');
+    div.classList.add('popup');
+    div.classList.add('animated');
+    div.classList.add('faster');
+    div.classList.add('fadeInDown');
+    div.innerHTML = `${volumen} m${'3'.sup()} en ${mercado}`;
 
+    if (prevDiv) document.body.removeChild(prevDiv);
+    document.body.appendChild(div);
+
+    div.style.position = 'fixed';
+    div.style.fontWeight = 'bold';
+    div.style.color = 'rgb(67, 86, 143)';
+    div.style.boxShadow = '0px 2px rgb(31, 69, 122, 0.8)';
+    div.style.backgroundColor = 'rgb(166, 213, 191, 0.95)';
+    div.style.borderRadius = '3px';
+    div.style.padding = '0.8em';
+    div.style.top = `${e.clientY + 15}px`;
+    div.style.left = `${e.clientX + 30}px`;
+
+    (function () {
+        setTimeout(() => {
+            div.classList.replace('fadeInDown', 'fadeOut');
+        }, 3000);
+    })();
+}
+
+//--------------SUMAR OFERTAS HASTA LA SELECCIONADA-------------------------------
+const acumularVolumen = (numeroOferta) => {
+    if (!isNaN(numeroOferta)) {
+        const ofertas = leerTabla(myTab);
+        const ofertasFiltradas = ofertas.filter(el => (el.numeroOrden <= ofertas[numeroOferta - 1].numeroOrden && el.mercado == ofertas[numeroOferta - 1].mercado));
+        return {
+            ofertas: ofertasFiltradas,
+            volumenTotal: ofertasFiltradas.reduce((total, item) => total + item.versiones[0].volumen, 0).toLocaleString('es-ES')
+        };
+    }
+}
+
+//----------------LECTURA DE LAS OFERTAS EN PANTALLA--------------------------------------------------------
 function leerTabla(myTab) {
     // myTab = document.querySelector("#dgOfertaVenta"); //Hacer referencia a la tabla contenedora de las ofertas
 
@@ -83,6 +139,7 @@ if (!leerLocalStorage()) {
 // guardarOfertas(leerTabla());
 var mostrarResumen = document.querySelector('.menu-icon');
 mostrarResumen.addEventListener("click", ocultarMenu, false);
+agregarListener();
 //------------EJECUTA LA ACTUALIZACIÓN DEL RESUMEN CADA UN TIEMPO DEFINIDO---------------------
 // var t = 60;
 // setInterval(() => {
@@ -168,13 +225,15 @@ function dateToNumber(fechaHora) {
 
 //-------------------DEVUELVE EL INDICE DE LA COLUMNA CON EL NOMBRE INGRESADO POR PARAMETRO---------------------------------------------------------------
 function buscarColumna(columna) {
-    var cabecera = myTab.firstElementChild.firstElementChild.children;
-    var encabezado = [];
-    for (var i = 0; i < cabecera.length; i++) {
-        encabezado.push(cabecera[i].innerText + cabecera[i].className);
+    if (myTab) {
+        var cabecera = myTab.firstElementChild.firstElementChild.children;
+        var encabezado = [];
+        for (var i = 0; i < cabecera.length; i++) {
+            encabezado.push(cabecera[i].innerText + cabecera[i].className);
+        }
+        // console.log(encabezado);
+        return encabezado.findIndex((element) => element === columna);
     }
-    // console.log(encabezado);
-    return encabezado.findIndex((element) => element === columna);
 };
 
 //-------------------RESALTA OFERTA CON NUMERO n CON EL COLOR c (ARREGLAR)---------------------------------------------------------------
@@ -197,44 +256,45 @@ function resaltarOferta(n, c) {
 };
 
 //-------------------OBSERVER: DETECTA CAMBIOS EN LA TABLA DE OFERTAS---------------------------------------------------------------
-var tablaOfertas = myTab.firstElementChild;
+if (myTab) {
+    let tablaOfertas = myTab.firstElementChild;
 
-var configObserver = {
-    attributes: false,
-    childList: true,
-    subtree: true,
-    oldValue: false
-};
-
-var observer = new MutationObserver(mutations => {
-
-    let listaCambios = [];
-    let nn = 0
-    // console.log(mutations);
-    for (i = 0; i < mutations.length; i++) {
-        if (mutations[i].target != 'div#udtGridUpdater') {
-            if (mutations[i].addedNodes.length > 0 && mutations[0].removedNodes.length === 0) {
-                nn = parseInt(mutations[i].addedNodes[0].cells[buscarColumna("Nro.Oferta")].innerHTML);
-                console.log("Se agregó oferta", nn);
-                listaCambios.push(nn);
-            } else if (mutations[i].addedNodes.length === 0 && mutations[0].removedNodes.length > 0) {
-                nn = parseInt(mutations[i].removedNodes[0].cells[buscarColumna("Nro.Oferta")].innerHTML);
-                console.log("Se eliminó oferta", nn);
-            } else {
-                for (i = 0; i < mutations.length; i++) {
-                    nn = parseInt(mutations[i].addedNodes[0].parentNode.parentNode.cells[buscarColumna("Nro.Oferta")].innerText);
-                    console.log("Cambió oferta", nn);
-                    listaCambios.push(nn);
-                };
-            }
-        };
-        // console.log('(' + decirHora() + ')', listaCambios, mutations[0]);
-        pintarCambios(listaCambios);
+    var configObserver = {
+        attributes: false,
+        childList: true,
+        subtree: true,
+        oldValue: false
     };
-});
 
-observer.observe(tablaOfertas, configObserver);
+    var observer = new MutationObserver(mutations => {
 
+        let listaCambios = [];
+        let nn = 0
+        // console.log(mutations);
+        for (i = 0; i < mutations.length; i++) {
+            if (mutations[i].target != 'div#udtGridUpdater') {
+                if (mutations[i].addedNodes.length > 0 && mutations[0].removedNodes.length === 0) {
+                    nn = parseInt(mutations[i].addedNodes[0].cells[colOferta].innerHTML);
+                    console.log("Se agregó oferta", nn);
+                    listaCambios.push(nn);
+                } else if (mutations[i].addedNodes.length === 0 && mutations[0].removedNodes.length > 0) {
+                    nn = parseInt(mutations[i].removedNodes[0].cells[colOferta].innerHTML);
+                    console.log("Se eliminó oferta", nn);
+                } else {
+                    for (i = 0; i < mutations.length; i++) {
+                        nn = parseInt(mutations[i].addedNodes[0].parentNode.parentNode.cells[colOferta].innerText);
+                        console.log("Cambió oferta", nn);
+                        listaCambios.push(nn);
+                    };
+                }
+            };
+            // console.log('(' + decirHora() + ')', listaCambios, mutations[0]);
+            pintarCambios(listaCambios);
+        };
+    });
+
+    observer.observe(tablaOfertas, configObserver);
+}
 //-----------------OBSERVADOR: DETECTA CAMBIOS EN EL ELEMENTO "div.spinner-container"-----------------------------------------------------------------
 var procesando = document.querySelector("div.spinner-container");
 
@@ -245,7 +305,7 @@ var configObservador = {
     oldValue: true
 };
 
-var observador = new MutationObserver(mutations2 => {
+let observador = new MutationObserver(mutations2 => {
     let listaCambios = [];
     if (mutations2[0].target.children[1].parentNode.style.cssText == 'display: none;') {
         let arregloOfertas = leerTabla(myTab);
@@ -265,6 +325,7 @@ var observador = new MutationObserver(mutations2 => {
         var tablaOfertas = myTab.firstElementChild;
         observer.observe(tablaOfertas, configObserver);
         pintarCambios(listaCambios);
+        agregarListener();
         // actualizarResumen();
     };
     // console.log('(' + decirHora() + ') ' + listaCambios);
@@ -486,59 +547,57 @@ function iniciarResumen() {
                 </table>
             </div>
             <h2 class="logo precios"></h2>
-        <div>
-            <table class="res precio">
-                <thead>
-                    <tr>
-                        <th>Mercado</th>
-                        <th colspan="2">Precio Mínimo</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>NOA</td>
-                        <td id="noaPP">${noaPP}</td>
-                        <td id="noaP">${noaP}</td>
-                    </tr>
-                    <tr>
-                        <td>NQN</td>
-                        <td id="nqnPP">${nqnPP}</td>
-                        <td id="nqnP">${nqnP}</td>
-                    </tr>
-                    <tr>
-                        <td>CHU</td>
-                        <td id="chuPP">${chuPP}</td>
-                        <td id="chuP">${chuP}</td>
-                    </tr>
-                    <tr>
-                        <td>SCZ</td>
-                        <td id="sczPP">${sczPP}</td>
-                        <td id="sczP">${sczP}</td>
-                    </tr>
-                    <tr>
-                        <td>TDF</td>
-                        <td id="tdfPP">${tdfPP}</td>
-                        <td id="tdfP">${tdfP}</td>
-                    </tr>
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <th>TOTAL</th>
-                        <th></th>
-                        <th id="totP" colspan="2">${totP}</th>
-                    </tr>
-                </tfoot>
-            </table>
+            <div>
+                <table class="res precio">
+                    <thead>
+                        <tr>
+                            <th>Mercado</th>
+                            <th colspan="2">Precio Mínimo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>NOA</td>
+                            <td id="noaPP">${noaPP}</td>
+                            <td id="noaP">${noaP}</td>
+                        </tr>
+                        <tr>
+                            <td>NQN</td>
+                            <td id="nqnPP">${nqnPP}</td>
+                            <td id="nqnP">${nqnP}</td>
+                        </tr>
+                        <tr>
+                            <td>CHU</td>
+                            <td id="chuPP">${chuPP}</td>
+                            <td id="chuP">${chuP}</td>
+                        </tr>
+                        <tr>
+                            <td>SCZ</td>
+                            <td id="sczPP">${sczPP}</td>
+                            <td id="sczP">${sczP}</td>
+                        </tr>
+                        <tr>
+                            <td>TDF</td>
+                            <td id="tdfPP">${tdfPP}</td>
+                            <td id="tdfP">${tdfP}</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th>TOTAL</th>
+                            <th></th>
+                            <th id="totP" colspan="2">${totP}</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="container-btn">
+                <a class="link-to-download-json btn" href=jsonUrl style="display:block">JSON</a>
+                <a class="link-to-download-csv btn" href=csvUrl>CSV</a>
+            </div>
         </div>
-    <div class="container-btn">
-        <a class="link-to-download-json btn" href=jsonUrl style="display:block">JSON</a>
-        <a class="link-to-download-csv btn" href=csvUrl>CSV</a>
-    </div>
-</div>
-</div>
-`
+    </div>`
     }
-    //style="display:none"
 };
 
 //-----------------ACTUALIZAR LA TABLA RESUMEN-----------------------------------------------------------------
