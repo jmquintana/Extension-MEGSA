@@ -1,4 +1,4 @@
-const myTab = document.querySelector("#dgOfertaVenta"); //Hacer referencia a la tabla contenedora de las ofertas
+const myTab = document.querySelector(".dataGrid"); //Hacer referencia a la tabla contenedora de las ofertas
 
 //----------------CONSTRUCTOR DE OFERTAS--------------------------------------------------------
 class Oferta {
@@ -20,13 +20,13 @@ class Version {
     }
 }
 
-let colOferta = buscarColumna("Nro.Oferta");
-let colMercado = buscarColumna("Mercado");
-let colFecha = buscarColumna("Fecha y horario");
-let colVolumen = buscarColumna("Vol.Ofertado (m³)");
-let colPrecioPorcentaje = buscarColumna("Precio (%)");
-let colPrecio = buscarColumna("Precio (USD/MMBTU)");
-let colPrecioGBA = buscarColumna("Precio GBA (USD/MMBTU)");
+let colOferta = buscarColumna(/Nro.Oferta$/);
+let colMercado = buscarColumna(/Mercado/);
+let colFecha = buscarColumna(/Fecha\w?/);
+let colVolumen = buscarColumna(/Vol.Ofertado\w?/);
+let colPrecioPorcentaje = buscarColumna(/Precio\s\(\%\)/);
+let colPrecio = buscarColumna(/Precio\s\(USD\/MMBTU\)/);
+let colPrecioGBA = buscarColumna(/Precio\sGBA\w?/);
 
 //--------------RESALTAR OFERTA CON CLICK-------------------------------
 function agregarListenerSumas() {
@@ -92,11 +92,14 @@ function leerTabla(myTab) {
 
     let ofertas = [];
     if (myTab) {
+
         for (i = 1; i < myTab.rows.length; i++) {
+            // let mercado = ;
+
             let oferta = new Oferta(
                 parseInt(myTab.firstElementChild.children[i].children[colOferta].innerText),
                 i,
-                myTab.firstElementChild.children[i].children[colMercado].innerText,
+                (colMercado != -1) ? myTab.firstElementChild.children[i].children[colMercado].innerText : document.querySelector("#cboMercado").children[document.querySelector("#cboMercado").selectedIndex].innerText,
                 [new Version(
                     dateToNumber(myTab.firstElementChild.children[i].children[colFecha].innerText),
                     parseInt(myTab.firstElementChild.children[i].children[colVolumen].innerText.split('.').join('')),
@@ -227,15 +230,14 @@ function dateToNumber(fechaHora) {
 };
 
 //-------------------DEVUELVE EL INDICE DE LA COLUMNA CON EL NOMBRE INGRESADO POR PARAMETRO---------------------------------------------------------------
-function buscarColumna(columna) {
+function buscarColumna(nombreColumna) {
     if (myTab) {
         var cabecera = myTab.firstElementChild.firstElementChild.children;
         var encabezado = [];
         for (var i = 0; i < cabecera.length; i++) {
             encabezado.push(cabecera[i].innerText + cabecera[i].className);
         }
-        // console.log(encabezado);
-        return encabezado.findIndex((element) => element === columna);
+        return encabezado.findIndex((element) => element.match(nombreColumna));
     }
 };
 
@@ -329,7 +331,7 @@ if (myTab) {
             var tablaOfertas = myTab.firstElementChild;
             observer.observe(tablaOfertas, configObserver);
             pintarCambios(listaCambios);
-            agregarListener();
+            agregarListenerSumas();
             // actualizarResumen();
         };
         // console.log('(' + decirHora() + ') ' + listaCambios);
@@ -597,7 +599,7 @@ function iniciarResumen() {
                 </table>
             </div>
             <div class="container-btn">
-                <a class="link-to-download-json btn" href=jsonUrl style="display:block">JSON</a>
+                <a class="link-to-download-json btn" href=jsonUrl style="display:none">JSON</a>
                 <a class="link-to-download-csv btn" href=csvUrl>CSV</a>
             </div>
         </div>
@@ -707,8 +709,6 @@ function actualizarResumen() {
     ppScz.textContent = menorPorcentajePrecio('SANTA CRUZ');
     ppTdf.textContent = menorPorcentajePrecio('TIERRA DEL FUEGO');
 };
-
-
 
 //-------BAJAR TABLA A XLS--------------------------------------------------------------------------
 
