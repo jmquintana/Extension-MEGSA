@@ -29,12 +29,13 @@ let colPrecio = buscarColumna("Precio (USD/MMBTU)");
 let colPrecioGBA = buscarColumna("Precio GBA (USD/MMBTU)");
 
 //--------------RESALTAR OFERTA CON CLICK-------------------------------
-function agregarListener() {
+function agregarListenerSumas() {
     document.querySelectorAll("#dgOfertaVenta > tbody > tr").forEach(item =>
         item.addEventListener('click', event => {
             event.preventDefault();
-            if (event.target.parentNode.children) {
-                const oferta = event.target.parentNode.children[colOferta].textContent;
+            const celda = event.target.parentNode.children;
+            if (celda && celda[colOferta]) {
+                const oferta = celda[colOferta].textContent;
                 if (acumularVolumen(oferta)) {
                     acumularVolumen(oferta).ofertas.forEach(el => resaltarOferta(el.numeroOferta, 60));
                     popUp(acumularVolumen(oferta).volumenTotal, acumularVolumen(oferta).ofertas[0].mercado, event);
@@ -129,7 +130,12 @@ function leerLocalStorage() {
 // console.log(ofertas);
 // localStorage.clear();
 // leerTabla();
-iniciarResumen();
+if (myTab) {
+    iniciarResumen();
+    // var mostrarResumen = document.querySelector('.menu-icon');
+    // mostrarResumen.addEventListener("click", ocultarMenu, false);
+    agregarListenerSumas();
+};
 var ofertasLocalStorage = [];
 
 if (!leerLocalStorage()) {
@@ -137,9 +143,6 @@ if (!leerLocalStorage()) {
 };
 
 // guardarOfertas(leerTabla());
-var mostrarResumen = document.querySelector('.menu-icon');
-mostrarResumen.addEventListener("click", ocultarMenu, false);
-agregarListener();
 //------------EJECUTA LA ACTUALIZACIÓN DEL RESUMEN CADA UN TIEMPO DEFINIDO---------------------
 // var t = 60;
 // setInterval(() => {
@@ -296,42 +299,44 @@ if (myTab) {
     observer.observe(tablaOfertas, configObserver);
 }
 //-----------------OBSERVADOR: DETECTA CAMBIOS EN EL ELEMENTO "div.spinner-container"-----------------------------------------------------------------
-var procesando = document.querySelector("div.spinner-container");
+if (myTab) {
+    var procesando = document.querySelector("div.spinner-container");
 
-var configObservador = {
-    attributes: true,
-    childList: true,
-    subtree: true,
-    oldValue: true
-};
+    var configObservador = {
+        attributes: true,
+        childList: true,
+        subtree: true,
+        oldValue: true
+    };
 
-let observador = new MutationObserver(mutations2 => {
-    let listaCambios = [];
-    if (mutations2[0].target.children[1].parentNode.style.cssText == 'display: none;') {
-        let arregloOfertas = leerTabla(myTab);
-        // ofertasLocalStorage = leerLocalStorage();
-        for (var i = 0; i < arregloOfertas.length; i++) {
-            if (ofertasLocalStorage[i] && ofertasLocalStorage[i].versiones && arregloOfertas[i]) {
-                if ((ofertasLocalStorage[i].versiones[0].volumen != arregloOfertas[i].versiones[0].volumen) || (ofertasLocalStorage[i].versiones[0].precio != arregloOfertas[i].versiones[0].precio)) {
-                    listaCambios.push(ofertasLocalStorage[i].numeroOferta);
+    let observador = new MutationObserver(mutations2 => {
+        let listaCambios = [];
+        if (mutations2[0].target.children[1].parentNode.style.cssText == 'display: none;') {
+            let arregloOfertas = leerTabla(myTab);
+            // ofertasLocalStorage = leerLocalStorage();
+            for (var i = 0; i < arregloOfertas.length; i++) {
+                if (ofertasLocalStorage[i] && ofertasLocalStorage[i].versiones && arregloOfertas[i]) {
+                    if ((ofertasLocalStorage[i].versiones[0].volumen != arregloOfertas[i].versiones[0].volumen) || (ofertasLocalStorage[i].versiones[0].precio != arregloOfertas[i].versiones[0].precio)) {
+                        listaCambios.push(ofertasLocalStorage[i].numeroOferta);
+                    };
                 };
             };
+            if (listaCambios.length === 0) {
+                console.log('(' + decirHora() + ')', 'No hubo cambios');
+            } else {
+                console.log('(' + decirHora() + ') ', listaCambios);
+            };
+            var tablaOfertas = myTab.firstElementChild;
+            observer.observe(tablaOfertas, configObserver);
+            pintarCambios(listaCambios);
+            agregarListener();
+            // actualizarResumen();
         };
-        if (listaCambios.length === 0) {
-            console.log('(' + decirHora() + ')', 'No hubo cambios');
-        } else {
-            console.log('(' + decirHora() + ') ', listaCambios);
-        };
-        var tablaOfertas = myTab.firstElementChild;
-        observer.observe(tablaOfertas, configObserver);
-        pintarCambios(listaCambios);
-        agregarListener();
-        // actualizarResumen();
-    };
-    // console.log('(' + decirHora() + ') ' + listaCambios);
-});
+        // console.log('(' + decirHora() + ') ' + listaCambios);
+    });
 
-observador.observe(procesando, configObservador);
+    observador.observe(procesando, configObservador);
+};
 
 //---------------PINTA LOS CAMBIOS INGRESADOS EN UN VECTOR DE NÚMERO DE OFERTA-------------------------------------------------------------------
 function pintarCambios(cambios) {
@@ -598,6 +603,48 @@ function iniciarResumen() {
         </div>
     </div>`
     }
+    const mostrarResumen = document.querySelector('.menu-icon');
+    mostrarResumen.addEventListener("click", ocultarMenu, false);
+
+    const jsonBtn = document.querySelector('.link-to-download-json');
+    jsonBtn.onclick = function () {
+        //-------DOWNLOAD LOCAL STORAGE--------------------------------------------------------------------------
+        //Hacer funcion acá, para que siempre se esté bajando el local storage de cada momento.---------------------------------------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        var _myArray = JSON.stringify(leerLocalStorage(), null, 2); //indentation in json format, human readable
+        var jsonLink = document.querySelector('.link-to-download-json'),
+            jsonBlob = new Blob([_myArray], { type: "octet/stream" }),
+            jsonName = 'ofertas.json',
+            jsonUrl = window.URL.createObjectURL(jsonBlob);
+        jsonLink.setAttribute('href', jsonUrl);
+        jsonLink.setAttribute('download', jsonName);
+        // jsonLink.click();
+    };
+
+    const csvBtn = document.querySelector('.link-to-download-csv');
+    csvBtn.onclick = function () {
+        //-------EXPORTAR TABLA A CSV--------------------------------------------------------------------------
+        function exportTableToCSV() {
+            var csv = [];
+            var rows = document.querySelectorAll(".dataGrid tbody tr");
+            for (var i = 0; i < rows.length; i++) {
+                var row = [], cols = rows[i].querySelectorAll("td, th");
+                for (var j = 0; j < cols.length; j++) {
+                    row.push(cols[j].innerText);
+                };
+                row = row.join(";");
+                csv.push(row);
+            };
+            csv = csv.join('\n');
+            return csv
+        }
+        //-------BAJAR TABLA A CSV--------------------------------------------------------------------------
+        var csvLink = document.querySelector('.link-to-download-csv'),
+            csvBlob = new Blob([exportTableToCSV()], { type: "text/csv" }),
+            csvName = 'ofertas.csv',
+            csvUrl = window.URL.createObjectURL(csvBlob);
+        csvLink.setAttribute('href', csvUrl);
+        csvLink.setAttribute('download', csvName);
+    };
 };
 
 //-----------------ACTUALIZAR LA TABLA RESUMEN-----------------------------------------------------------------
@@ -677,42 +724,3 @@ function actualizarResumen() {
 //     }
 // })()
 // });
-var jsonBtn = document.querySelector('.link-to-download-json');
-jsonBtn.onclick = function () {
-    //-------DOWNLOAD LOCAL STORAGE--------------------------------------------------------------------------
-    //Hacer funcion acá, para que siempre se esté bajando el local storage de cada momento.---------------------------------------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    var _myArray = JSON.stringify(leerLocalStorage(), null, 2); //indentation in json format, human readable
-    var jsonLink = document.querySelector('.link-to-download-json'),
-        jsonBlob = new Blob([_myArray], { type: "octet/stream" }),
-        jsonName = 'ofertas.json',
-        jsonUrl = window.URL.createObjectURL(jsonBlob);
-    jsonLink.setAttribute('href', jsonUrl);
-    jsonLink.setAttribute('download', jsonName);
-    // jsonLink.click();
-};
-
-var csvBtn = document.querySelector('.link-to-download-csv');
-csvBtn.onclick = function () {
-    //-------EXPORTAR TABLA A CSV--------------------------------------------------------------------------
-    function exportTableToCSV() {
-        var csv = [];
-        var rows = document.querySelectorAll(".dataGrid tbody tr");
-        for (var i = 0; i < rows.length; i++) {
-            var row = [], cols = rows[i].querySelectorAll("td, th");
-            for (var j = 0; j < cols.length; j++) {
-                row.push(cols[j].innerText);
-            };
-            row = row.join(";");
-            csv.push(row);
-        };
-        csv = csv.join('\n');
-        return csv
-    }
-    //-------BAJAR TABLA A CSV--------------------------------------------------------------------------
-    var csvLink = document.querySelector('.link-to-download-csv'),
-        csvBlob = new Blob([exportTableToCSV()], { type: "text/csv" }),
-        csvName = 'ofertas.csv',
-        csvUrl = window.URL.createObjectURL(csvBlob);
-    csvLink.setAttribute('href', csvUrl);
-    csvLink.setAttribute('download', csvName);
-};

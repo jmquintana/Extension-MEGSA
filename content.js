@@ -8,7 +8,7 @@ var n = document.createElement('script');
 // r.href = chrome.runtime.getURL('toastify.css');
 s.src = chrome.runtime.getURL('script.js');
 // m.src = chrome.runtime.getURL('toastify.js');
-n.src = chrome.runtime.getURL('numeral.min.js');
+n.src = chrome.runtime.getURL('libraries/numeral.min.js');
 
 // chrome.runtime.sendMessage({greeting: "hello"}, function(response) {
 //     console.log(response.farewell);
@@ -19,7 +19,7 @@ n.src = chrome.runtime.getURL('numeral.min.js');
 //     console.log("hola");
 // };
 // (document.head || document.documentElement).appendChild(r);
-s.onload = function() {
+s.onload = function () {
     this.remove();
 };
 (document.head || document.documentElement).appendChild(s);
@@ -27,7 +27,7 @@ s.onload = function() {
 //     this.remove();
 // };
 // (document.head || document.documentElement).appendChild(m);
-n.onload = function() {
+n.onload = function () {
     this.remove();
 };
 (document.head || document.documentElement).appendChild(n);

@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "Subasta MEGSA",
-    "version": "0.8.0",
+    "version": "0.9.0",
     "description": "Agrega un tablero resumen con datos útiles de las Subastas de CAMMESA en MEGSA.",
     "icons": {
         "128": "icons/128.png",
@@ -14,12 +14,11 @@
         "persistent": false
     },
     "browser_action": {
-        "default_icon": "icons/16.png",
-        "default_popup": "popup.html"
+        "default_icon": "icons/16.png"
     },
     "content_scripts": [{
-        "css": ["styles.css", "animate.css"],
-        "js": ["numeral.min.js", "content.js"],
+        "css": ["styles/styles.css", "styles/animate.css"],
+        "js": ["libraries/numeral.min.js", "content.js"],
         "matches": ["https://negociacion.megsa.ar/Usuario/CAMMESA/GlobalVentaCAMMESA.aspx?ronda*",
             "https://negociacion.megsa.ar/Usuario/CAMMESA/GlobalVentaCAMMESA*"
         ]
@@ -29,5 +28,5 @@
         "storage",
         "downloads"
     ],
-    "web_accessible_resources": ["script.js", "numeral.min.js", "styles.css", "toastify.js", "toastify.css"]
+    "web_accessible_resources": ["libraries/numeral.min.js", "script.js", "styles.css"]
 }

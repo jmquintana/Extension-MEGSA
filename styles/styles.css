@@ -5,12 +5,14 @@
     /* font-family: 'Roboto'; */
     align-items: center;
     /* flex-wrap: wrap; */
-    /* position: fixed; */
+    position: fixed;
     /* padding: 1px; */
     /* margin-left:5px; */
     margin-top: 10px;
     width: 168px;
-    font-size: 16px;
+    z-index: 10;
+    background-color: rgb(92, 110, 168);
+    border-radius: 3px;
 }
 
 .logo {
@@ -40,6 +42,20 @@
     user-select: none;
 }
 
+div#resumenVolumen {
+    animation-duration: 300ms;
+    /* animation-delay: 2s; */
+    /* animation-iteration-count: infinite; */
+}
+
+/* .show {
+    display:block;
+}
+
+.noshow {
+    display:none;
+} */
+
 table.res {
     color: white;
     width: 100%;
@@ -50,6 +66,7 @@ table.res {
 .res tfoot {
     border-top: solid 2px #1f457a;
     font-size: 1em;
+    ;
 }
 
 .res thead tr th,
