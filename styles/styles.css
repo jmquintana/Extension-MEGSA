@@ -167,3 +167,16 @@ table.res {
     float: left;
     height: 24px;
 }
+
+table.popup td {
+    font-size: 0.8em;
+    color: rgb(67, 86, 143);
+}
+
+table.popup td:nth-child(1) {
+    text-align: right;
+}
+
+table.popup td:nth-child(2) {
+    text-align: left;
+}

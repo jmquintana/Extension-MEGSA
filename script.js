@@ -36,30 +36,42 @@ function agregarListenerSumas() {
             const celda = event.target.parentNode.children;
             if (celda && celda[colOferta]) {
                 const oferta = celda[colOferta].textContent;
-                if (acumularVolumen(oferta)) {
-                    acumularVolumen(oferta).ofertas.forEach(el => resaltarOferta(el.numeroOferta, 60));
-                    popUp(acumularVolumen(oferta).volumenTotal, acumularVolumen(oferta).ofertas[0].mercado, event);
+                if (subTotalMercado(oferta)) {
+                    subTotalMercado(oferta).ofertas.forEach(el => resaltarOferta(el.numeroOferta, 60));
+                    popUp(subTotal(oferta).volumenTotal, subTotalMercado(oferta).volumenTotal, subTotalMercado(oferta).ofertas[0].mercado, event);
                 };
             };
         })
     );
 }
 //--------------POP UP VOLUMEN-------------------------------
-const popUp = (volumen, mercado, e) => {
+const popUp = (subTotal, subTotalMercado, mercado, e) => {
     const div = document.createElement("div");
     const prevDiv = document.querySelector('div.popup');
     div.classList.add('popup');
     div.classList.add('animated');
     div.classList.add('faster');
     div.classList.add('fadeInDown');
-    div.innerHTML = `${volumen} m${'3'.sup()} en ${mercado}`;
+    // div.innerHTML = `<b>${subTotalMercado} m${'3'.sup()}</b> en ${mercado}<br><b>${subTotal} m${'3'.sup()}</b> en TOTAL`;
+    div.innerHTML = `   <table class="popup">
+                            <tbody>
+                                <tr>
+                                    <td><b>${subTotalMercado} m${'3'.sup()}</b></td>
+                                    <td> en ${mercado}</td>
+                                </tr>
+                                <tr>
+                                    <td><b>${subTotal} m${'3'.sup()}</b></td>
+                                    <td> en TOTAL</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    `;
 
     if (prevDiv) document.body.removeChild(prevDiv);
     document.body.appendChild(div);
 
     div.style.position = 'fixed';
-    div.style.fontWeight = 'bold';
-    div.style.color = 'rgb(67, 86, 143)';
+    // div.style.color = 'rgb(67, 86, 143)';
     div.style.boxShadow = '0px 2px rgb(31, 69, 122, 0.8)';
     div.style.backgroundColor = 'rgb(166, 213, 191, 0.95)';
     div.style.borderRadius = '3px';
@@ -75,10 +87,21 @@ const popUp = (volumen, mercado, e) => {
 }
 
 //--------------SUMAR OFERTAS HASTA LA SELECCIONADA-------------------------------
-const acumularVolumen = (numeroOferta) => {
+const subTotalMercado = (numeroOferta) => {
     if (!isNaN(numeroOferta)) {
         const ofertas = leerTabla(myTab);
         const ofertasFiltradas = ofertas.filter(el => (el.numeroOrden <= ofertas[numeroOferta - 1].numeroOrden && el.mercado == ofertas[numeroOferta - 1].mercado));
+        return {
+            ofertas: ofertasFiltradas,
+            volumenTotal: ofertasFiltradas.reduce((total, item) => total + item.versiones[0].volumen, 0).toLocaleString('es-ES')
+        };
+    }
+}
+
+const subTotal = (numeroOferta) => {
+    if (!isNaN(numeroOferta)) {
+        const ofertas = leerTabla(myTab);
+        const ofertasFiltradas = ofertas.filter(el => el.numeroOrden <= ofertas[numeroOferta - 1].numeroOrden);
         return {
             ofertas: ofertasFiltradas,
             volumenTotal: ofertasFiltradas.reduce((total, item) => total + item.versiones[0].volumen, 0).toLocaleString('es-ES')
