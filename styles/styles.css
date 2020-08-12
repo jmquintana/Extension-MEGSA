@@ -171,6 +171,8 @@ table.res {
 table.popup td {
     font-size: 0.8em;
     color: rgb(67, 86, 143);
+    vertical-align: text-bottom;
+    user-select: none;
 }
 
 table.popup td:nth-child(1) {

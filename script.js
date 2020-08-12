@@ -48,20 +48,27 @@ function agregarListenerSumas() {
 const popUp = (subTotal, subTotalMercado, mercado, e) => {
     const div = document.createElement("div");
     const prevDiv = document.querySelector('div.popup');
+    let myVar, show;
+
+    if (subTotal === subTotalMercado) {
+        show = "none";
+    } else {
+        show = "table-row";
+    }
+
     div.classList.add('popup');
     div.classList.add('animated');
     div.classList.add('faster');
     div.classList.add('fadeInDown');
-    // div.innerHTML = `<b>${subTotalMercado} m${'3'.sup()}</b> en ${mercado}<br><b>${subTotal} m${'3'.sup()}</b> en TOTAL`;
     div.innerHTML = `   <table class="popup">
                             <tbody>
                                 <tr>
                                     <td><b>${subTotalMercado} m${'3'.sup()}</b></td>
                                     <td> en ${mercado}</td>
                                 </tr>
-                                <tr>
+                                <tr style="display:${show}">
                                     <td><b>${subTotal} m${'3'.sup()}</b></td>
-                                    <td> en TOTAL</td>
+                                    <td> en TODAS</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -69,21 +76,44 @@ const popUp = (subTotal, subTotalMercado, mercado, e) => {
 
     if (prevDiv) document.body.removeChild(prevDiv);
     document.body.appendChild(div);
-
     div.style.position = 'fixed';
-    // div.style.color = 'rgb(67, 86, 143)';
-    div.style.boxShadow = '0px 2px rgb(31, 69, 122, 0.8)';
-    div.style.backgroundColor = 'rgb(166, 213, 191, 0.95)';
-    div.style.borderRadius = '3px';
-    div.style.padding = '0.8em';
+    div.style.borderBottom = '2px solid rgb(31, 69, 122, 1)';
+    div.style.boxShadow = '0px 0px 20px rgb(31, 69, 122, 0.3)';
+    div.style.backgroundColor = 'rgb(166, 213, 191, 1)';
+    div.style.borderRadius = '2px';
+    div.style.padding = '0.4em';
     div.style.top = `${e.clientY + 15}px`;
     div.style.left = `${e.clientX + 30}px`;
 
-    (function () {
-        setTimeout(() => {
+    function deleteDiv() {
+        setTimeout(() => div.remove(), 500)
+    }
+
+    (() => {
+        myVar = setTimeout(() => {
             div.classList.replace('fadeInDown', 'fadeOut');
-        }, 3000);
+            deleteDiv();
+        }, 3000)
     })();
+    function myStopFunction() {
+        clearTimeout(myVar);
+    }
+
+    div.addEventListener('mouseover', event => {
+        event.preventDefault();
+        myStopFunction();
+    });
+
+    div.addEventListener('mouseleave', event => {
+        event.preventDefault();
+        (function () {
+            myVar = setTimeout(() => {
+                div.classList.replace('fadeInDown', 'fadeOut');
+                deleteDiv();
+            }, 1000);
+        })();
+    });
+
 }
 
 //--------------SUMAR OFERTAS HASTA LA SELECCIONADA-------------------------------
@@ -302,7 +332,9 @@ if (myTab) {
         for (i = 0; i < mutations.length; i++) {
             if (mutations[i].target != 'div#udtGridUpdater') {
                 if (mutations[i].addedNodes.length > 0 && mutations[0].removedNodes.length === 0) {
-                    nn = parseInt(mutations[i].addedNodes[0].cells[colOferta].innerHTML);
+                    if (mutations[i].addedNodes[0].cells) {
+                        nn = parseInt(mutations[i].addedNodes[0].cells[colOferta].innerHTML);
+                    };
                     console.log("Se agregó oferta", nn);
                     listaCambios.push(nn);
                 } else if (mutations[i].addedNodes.length === 0 && mutations[0].removedNodes.length > 0) {
