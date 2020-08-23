@@ -86,7 +86,7 @@ const popUp = (subTotal, subTotalMercado, mercado, e) => {
     div.style.left = `${e.clientX + 30}px`;
 
     function deleteDiv() {
-        setTimeout(() => div.remove(), 500)
+        myVar = setTimeout(() => div.remove(), 1000)
     }
 
     (() => {
@@ -102,6 +102,7 @@ const popUp = (subTotal, subTotalMercado, mercado, e) => {
     div.addEventListener('mouseover', event => {
         event.preventDefault();
         myStopFunction();
+        div.classList.replace('fadeOut', 'fadeIn');
     });
 
     div.addEventListener('mouseleave', event => {
@@ -109,8 +110,9 @@ const popUp = (subTotal, subTotalMercado, mercado, e) => {
         (function () {
             myVar = setTimeout(() => {
                 div.classList.replace('fadeInDown', 'fadeOut');
+                div.classList.replace('fadeIn', 'fadeOut');
                 deleteDiv();
-            }, 1000);
+            }, 750);
         })();
     });
 
