@@ -506,20 +506,25 @@ function menorPorcentajePrecio(cuenca) {
 
 //-----------------OCULTA/MUESTRA EL MENU RESUMEN-----------------------------------------------------------------
 function ocultarMenu() {
-    var menuBtn = document.querySelector('.menu-icon'),
-        menu = document.querySelector("div.logo-nav-container");
+    var burger = document.querySelector('.burger'),
+        menu = document.querySelector("div.logo-nav-container"),
+        menuContainer = document.querySelector('.menuContainer');
     // menu.classList.add('animated', 'bounceOutLeft');
 
     if (menu.classList.contains('show')) {
         console.log('se ocultó el resumen');
         menu.classList.replace('show', 'noshow');
         menu.classList.replace('fadeInLeft', 'fadeOutLeft');
-        menuBtn.innerText = 'ver resumen';
+        // menuBtn.innerText = 'ver resumen';
+        burger.classList.toggle('activate');
+        menuContainer.classList.toggle('activate');
     } else {
         console.log('se mostró el resumen');
         menu.classList.replace('noshow', 'show');
         menu.classList.replace('fadeOutLeft', 'fadeInLeft');
-        menuBtn.innerText = 'ocultar resumen';
+        // menuBtn.innerText = 'ocultar resumen';
+        burger.classList.toggle('activate');
+        menuContainer.classList.toggle('activate');
     };
 };
 
@@ -563,7 +568,14 @@ function iniciarResumen() {
     if (encabezado) {
         encabezado.outerHTML +=
             `
-    <span class="menu-icon">ocultar resumen</span>
+    <span class="menu-icon" style="display:none">ocultar resumen</span>
+    <div class="menuContainer activate">
+        <div class="burger activate">
+            <div class="line1"></div>
+            <div class="line2"></div>
+            <div class="line3"></div>
+        </div>
+    </div>
     <div class="logo-nav-container show animated fadeInLeft faster">
         <div id="resumenVolumen">
             <div>
@@ -662,8 +674,10 @@ function iniciarResumen() {
         </div>
     </div>`
     }
-    const mostrarResumen = document.querySelector('.menu-icon');
-    mostrarResumen.addEventListener("click", ocultarMenu, false);
+    // const mostrarResumen = document.querySelector('.menu-icon');
+    const burger = document.querySelector('.burger');
+    // mostrarResumen.addEventListener("click", ocultarMenu, false);
+    burger.addEventListener("click", ocultarMenu, false);
 
     const jsonBtn = document.querySelector('.link-to-download-json');
     jsonBtn.onclick = function () {

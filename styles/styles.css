@@ -182,3 +182,44 @@ table.popup td:nth-child(1) {
 table.popup td:nth-child(2) {
     text-align: left;
 }
+
+.menuContainer {
+    /* width: 160px; */
+    display: flex;
+    /* background-color: aquamarine; */
+    transition: all .6s ease;
+}
+
+.burger {
+    height: 20px;
+    width: 25px;
+    cursor: pointer;
+    /* transition: all .9s ease; */
+    /* transition: all .3s ease; */
+
+}
+
+.burger div {
+    width: 15px;
+    height: 2px;
+    margin: 3px;
+    background-color: rgb(233, 233, 233);
+    transition: all .5s ease;
+}
+
+.activate {
+    /* justify-content: flex-end; */
+    transform: translateX(70px);
+}
+
+.activate .line1 {
+    transform: rotate(-45deg) translate(-2px, 5px);
+}
+
+.activate .line2 {
+    opacity: 0;
+}
+
+.activate .line3 {
+    transform: rotate(45deg) translate(-2px, -5px);
+}
