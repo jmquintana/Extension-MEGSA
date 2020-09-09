@@ -30,7 +30,7 @@ let colPrecioGBA = buscarColumna(/Precio\sGBA\w?/);
 
 //--------------RESALTAR OFERTA CON CLICK-------------------------------
 function agregarListenerSumas() {
-    document.querySelectorAll("#dgOfertaVenta > tbody > tr").forEach(item =>
+    document.querySelectorAll("#dgOfertaVenta > tbody > tr").forEach(item => {
         item.addEventListener('click', event => {
             event.preventDefault();
             const celda = event.target.parentNode.children;
@@ -42,7 +42,7 @@ function agregarListenerSumas() {
                 };
             };
         })
-    );
+    });
 }
 //--------------POP UP VOLUMEN-------------------------------
 const popUp = (subTotal, subTotalMercado, mercado, e) => {
