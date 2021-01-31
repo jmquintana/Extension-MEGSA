@@ -37,6 +37,7 @@ function agregarListenerSumas() {
             if (celda && celda[colOferta]) {
                 const oferta = celda[colOferta].textContent;
                 if (subTotalMercado(oferta)) {
+                    console.log(subTotalMercado(oferta).ofertas);
                     subTotalMercado(oferta).ofertas.forEach(el => resaltarOferta(el.numeroOferta, 60));
                     popUp(subTotal(oferta).volumenTotal, subTotalMercado(oferta).volumenTotal, subTotalMercado(oferta).ofertas[0].mercado, event);
                 };
@@ -115,7 +116,6 @@ const popUp = (subTotal, subTotalMercado, mercado, e) => {
             }, 750);
         })();
     });
-
 }
 
 //--------------SUMAR OFERTAS HASTA LA SELECCIONADA-------------------------------
@@ -297,19 +297,19 @@ function buscarColumna(nombreColumna) {
 };
 
 //-------------------RESALTA OFERTA CON NUMERO n CON EL COLOR c (ARREGLAR)---------------------------------------------------------------
-function resaltarOferta(n, c) {
+function resaltarOferta(numeroOferta, color) {
     //Color row background in HSL space (easier to manipulate fading)
     var filaOferta = $('.dataGrid').children(0).children(0);
     let ofertas = leerTabla(myTab);
-    var x = ofertas[n - 1].numeroOrden
-    filaOferta.eq(x).css('backgroundColor', 'hsl(' + c + ', 100%, 50%)');
+    var x = ofertas[numeroOferta - 1].numeroOrden
+    filaOferta.eq(x).css('backgroundColor', 'hsl(' + color + ', 100%, 50%)');
 
     var d = 0;
     for (var i = 50; i <= 100; i = i + 1) { //i represents the lightness
         d += 40;
         (function (ii, dd) {
             setTimeout(function () {
-                filaOferta.eq(x).css('backgroundColor', 'hsl(' + c + ',100%,' + ii + '%)');
+                filaOferta.eq(x).css('backgroundColor', 'hsl(' + color + ',100%,' + ii + '%)');
             }, dd);
         })(i, d);
     }
